@@ -18,18 +18,11 @@ This repository contains an Azure Resource Manager (ARM) template for deploying 
 
 ## Support and Reporting Issues
 
-Support for this ARM template is made available exclusively through Github repo issue tracking.  You are also welcome to contact the contributors directly via their provided contact information.  If you find a bug, please open an issue against this repo [here](https://github.com/zscaler/nss-azure-deploy/issues).
-
-## Contributors
-
-Zscaler is actively contributing to and maintaining this repo.  
-
-  Contributors:
-  [Eddie Parra](https://github.com/eparra), [Rohan Upalekar](https://github.com/rohan-zscaler), Anoop SV.
+Support for this ARM template is made available exclusively through Github repo issue tracking.  You are also welcome to contact the contributors directly via their provided contact information.  If you find a bug, please open an issue against this repo [here](https://github.com/willguibr/nss-azure-deploy/issues).
 
 ## Licensing
 
-This work is released under the MIT license. A copy of the license is provided in the [LICENSE](https://github.com/zscaler/nss-azure-deploy/blob/master/LICENSE) file.
+This work is released under the MIT license. A copy of the license is provided in the [LICENSE](https://github.com/willguibr/nss-azure-deploy/blob/master/LICENSE) file.
 
 ## References
 - [About Nanolog Streaming Service](https://help.zscaler.com/zia/about-nanolog-streaming-service)

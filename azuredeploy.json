@@ -1,41 +1,26 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "westus2",
-      "allowedValues": [
-        "australiacentral",
-        "australiaeast",
-        "australiasoutheast",
-        "brazilsouth",
-        "canadacentral",
-        "centralindia",
-        "eastasia",
-        "eastus",
-        "eastus2",
-        "francecentral",
-        "japaneast",
-        "koreacentral",
-        "northcentralus",
-        "northeurope",
-        "southcentralus",
-        "southeastasia",
-        "uksouth",
-        "westcentralus",
-        "westeurope",
-        "westus2"
-      ],
-      "metadata": {
-        "description": "Location for all resources to be deployed in."
-      }
-    },
     "SAS-Token": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "SAS Token for Zscaler's VHDs. Contact Zscaler Support to receive the token. Example of SAS token: sp=r&st=2019-05-07T03:18:56Z&se=2020-05-31T11:18:56Z&spr=https&sv=2018-03-28&sig=AmDuefmdf7lNjrF0aOdUenpuwmo4F5uq7X2oFFtHTzg%3D&sr=b"
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "Zscaler-NSS-VM",
+      "metadata": {
+        "description": "Name of the Virtual Machine (VM)"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_E4-2s_v3",
+      "metadata": {
+        "description": "Size of the VM."
       }
     },
     "vNetNewOrExisting": {
@@ -56,11 +41,11 @@
         "description": "If vNetNewOrExisting is set to existing, than specify the Virtual Network that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new Virtual Network. Existing Virtual Network must be located in the same location as to where this template is being deployed. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 2 and 64 characters."
       }
     },
-    "virtualNetworkResourceGroup": {
+    "subnetName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "Zscaler-NSS-Subnet",
       "metadata": {
-        "description": "Name of the existing VNET resource group. If vNetNewOrExisting is set to existing, than specify the Resource Group where existing Virtual Network is located. If vNetNewOrExisting i set to new, leave this field as [resourceGroup().name]"
+        "description": "If vNetNewOrExisting is set to existing, than specify the subnet that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new subnet. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 1 and 80 characters."
       }
     },
     "vNetAddressRange": {
@@ -70,13 +55,6 @@
         "description": "Address Range of new or existing Virtual Network."
       }
     },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "Zscaler-NSS-Subnet",
-      "metadata": {
-        "description": "If vNetNewOrExisting is set to existing, than specify the subnet that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new subnet. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 1 and 80 characters."
-      }
-    },
     "subnetAddressRange": {
       "type": "string",
       "defaultValue": "192.168.100.0/25",
@@ -84,18 +62,11 @@
         "description": "Address Range of new or existing Subnet."
       }
     },
-    "vmName": {
+    "virtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "Zscaler-NSS-VM",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
-        "description": "Name of the Virtual Machine (VM)"
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_E4-2s_v3",
-      "metadata": {
-        "description": "Size of the VM."
+        "description": "Name of the existing VNET resource group. If vNetNewOrExisting is set to existing, than specify the Resource Group where existing Virtual Network is located. If vNetNewOrExisting i set to new, leave this field as [resourceGroup().name]"
       }
     },
     "networkSecurityGroupName": {
@@ -142,7 +113,6 @@
     "vhdStorageAccountSKU": "Standard_LRS",
     "vhdStorageAccountContainerName": "zscalernssrprod",
     "destOSvhdName": "znss_osdisk.vhd",
-    "destDataVHDname": "znss_datadisk.vhd",
     "automationAccountNamePrefix": "VHDcopy-Automation",
     "automationAccountName": "[concat(variables('automationAccountNamePrefix'), '-', uniqueString(subscription().id, resourceGroup().id, deployment().name))]",
     "automationSKU": "Basic",
@@ -160,16 +130,14 @@
     },
     "subnetRef": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName'))]",
     "destinationOSvhdURL": "[concat('https://',variables('vhdStorageAccountName'), '.blob.core.windows.net/', variables('vhdStorageAccountContainerName'), '/', variables('destOSvhdName'))]",
-    "destinationDataVHDurl": "[concat('https://',variables('vhdStorageAccountName'), '.blob.core.windows.net/', variables('vhdStorageAccountContainerName'), '/', variables('destDataVHDname'))]",
     "uniqueBase1": "[toLower(uniqueString(parameters('virtualNetworkName'), resourceGroup().id))]",
-    "uniqueBase2": "[toLower(uniqueString(parameters('vmName'), resourceGroup().id))]",
     "guid1": "[concat(substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(concat(variables('uniqueBase1'),variables('uniqueBase1'),substring(variables('uniqueBase1'),0,10)),'g','0'),'h','1'),'i','2'),'j','3'),'k','4'),'l','5'),'m','6'),'n','7'),'o','8'),'p','9'),'q','a'),'r','b'),'s','c'),'t','d'),'u','e'),'v','f'),'w','0'),'x','1'),'y','2'),'z','3'),0,8),'-',substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(concat(variables('uniqueBase1'),variables('uniqueBase1'),substring(variables('uniqueBase1'),0,10)),'g','0'),'h','1'),'i','2'),'j','3'),'k','4'),'l','5'),'m','6'),'n','7'),'o','8'),'p','9'),'q','a'),'r','b'),'s','c'),'t','d'),'u','e'),'v','f'),'w','0'),'x','1'),'y','2'),'z','3'),9,4),'-',substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(concat(variables('uniqueBase1'),variables('uniqueBase1'),substring(variables('uniqueBase1'),0,10)),'g','0'),'h','1'),'i','2'),'j','3'),'k','4'),'l','5'),'m','6'),'n','7'),'o','8'),'p','9'),'q','a'),'r','b'),'s','c'),'t','d'),'u','e'),'v','f'),'w','0'),'x','1'),'y','2'),'z','3'),14,4),'-',substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(concat(variables('uniqueBase1'),variables('uniqueBase1'),substring(variables('uniqueBase1'),0,10)),'g','0'),'h','1'),'i','2'),'j','3'),'k','4'),'l','5'),'m','6'),'n','7'),'o','8'),'p','9'),'q','a'),'r','b'),'s','c'),'t','d'),'u','e'),'v','f'),'w','0'),'x','1'),'y','2'),'z','3'),19,4),'-',substring(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(concat(variables('uniqueBase1'),variables('uniqueBase1'),substring(variables('uniqueBase1'),0,10)),'g','0'),'h','1'),'i','2'),'j','3'),'k','4'),'l','5'),'m','6'),'n','7'),'o','8'),'p','9'),'q','a'),'r','b'),'s','c'),'t','d'),'u','e'),'v','f'),'w','0'),'x','1'),'y','2'),'z','3'),24,12))]"
   },
   "resources": [
     {
       "name": "[variables('vhdStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2018-07-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
@@ -190,8 +158,8 @@
     {
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
-      "apiVersion": "2015-01-01-preview",
-      "location": "[parameters('location')]",
+      "apiVersion": "2021-06-22",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
       ],
@@ -205,7 +173,7 @@
           "name": "automationCredential",
           "type": "credentials",
           "apiVersion": "2015-10-31",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -218,8 +186,8 @@
         {
           "name": "[variables('runbookName')]",
           "type": "runbooks",
-          "apiVersion": "2015-01-01-preview",
-          "location": "[parameters('location')]",
+          "apiVersion": "2019-06-01",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -266,8 +234,8 @@
         {
           "name": "[variables('guid1')]",
           "type": "jobs",
-          "apiVersion": "2015-01-01-preview",
-          "location": "[parameters('location')]",
+          "apiVersion": "2019-06-01",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -294,7 +262,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2018-12-01",
       "name": "[parameters('networkSecurityGroupName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "securityRules": [
           {
@@ -542,7 +510,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2015-06-15",
       "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
       ],
@@ -569,7 +537,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2018-01-01",
       "name": "[parameters('publicIPAddress1name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
@@ -578,7 +546,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2018-01-01",
       "name": "[parameters('publicIPAddress2name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
@@ -587,7 +555,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-04-01",
       "name": "[parameters('nic1name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress1name'))]",
         "[parameters('virtualNetworkName')]"
@@ -615,7 +583,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-04-01",
       "name": "[parameters('nic2name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]",
         "[parameters('virtualNetworkName')]"
@@ -643,7 +611,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
       "name": "[parameters('vmName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))]",

@@ -140,7 +140,7 @@
       "name": "[variables('vhdStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2021-09-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
       },
@@ -149,7 +149,7 @@
       "resources": [
         {
           "type": "blobServices/containers",
-          "apiVersion": "2018-07-01",
+          "apiVersion": "2021-09-01",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]"
           ],
@@ -174,14 +174,14 @@
         {
           "name": "automationCredential",
           "type": "credentials",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
           "properties": {
             "userName": "unusedUsername",
-            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2018-07-01').keys[0].value]",
+            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2021-09-01').keys[0].value]",
             "description": "string"
           }
         },
@@ -207,7 +207,7 @@
         {
           "name": "[variables('psModules').azAccounts.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -221,7 +221,7 @@
         {
           "name": "[variables('psModules').azStorage.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",

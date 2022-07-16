@@ -109,6 +109,7 @@
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
     "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
     "vmName": "[concat(parameters('vmName'), '-VM')]",
+    "location": "[resourceGroup().location]",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
@@ -138,7 +139,7 @@
     {
       "name": "[variables('vhdStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "apiVersion": "2018-07-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
@@ -160,7 +161,7 @@
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2015-10-31",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
       ],
@@ -174,7 +175,7 @@
           "name": "automationCredential",
           "type": "credentials",
           "apiVersion": "2015-10-31",
-          "location": "[resourceGroup().location]",
+          "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -188,7 +189,7 @@
           "name": "[variables('runbookName')]",
           "type": "runbooks",
           "apiVersion": "2015-10-31",
-          "location": "[resourceGroup().location]",
+          "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -236,7 +237,7 @@
           "name": "[variables('guid1')]",
           "type": "jobs",
           "apiVersion": "2015-01-01-preview",
-          "location": "[resourceGroup().location]",
+          "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -263,7 +264,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2018-12-01",
       "name": "[parameters('networkSecurityGroupName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "properties": {
         "securityRules": [
           {
@@ -511,7 +512,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2015-06-15",
       "name": "[parameters('virtualNetworkName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
       ],
@@ -538,7 +539,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2018-01-01",
       "name": "[parameters('publicIPAddress1name')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
@@ -547,7 +548,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2018-01-01",
       "name": "[parameters('publicIPAddress2name')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
@@ -556,7 +557,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-04-01",
       "name": "[parameters('nic1name')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress1name'))]",
         "[parameters('virtualNetworkName')]"
@@ -584,7 +585,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-04-01",
       "name": "[parameters('nic2name')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]",
         "[parameters('virtualNetworkName')]"
@@ -612,7 +613,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
       "name": "[variables('vmName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))]",

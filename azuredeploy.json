@@ -109,7 +109,6 @@
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
     "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
     "vmName": "[concat(parameters('vmName'), '-VM')]",
-    "location": "[resourceGroup().location]",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
@@ -140,7 +139,7 @@
       "name": "[variables('vhdStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2018-07-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
       },
@@ -149,7 +148,7 @@
       "resources": [
         {
           "type": "blobServices/containers",
-          "apiVersion": "2021-02-01",
+          "apiVersion": "2018-07-01",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]"
           ],
@@ -160,7 +159,7 @@
     {
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
-      "apiVersion": "2021-06-22",
+      "apiVersion": "2015-10-31",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
@@ -174,21 +173,21 @@
         {
           "name": "automationCredential",
           "type": "credentials",
-          "apiVersion": "2019-06-01",
+          "apiVersion": "2015-10-31",
           "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
           "properties": {
             "userName": "unusedUsername",
-            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2019-06-01').keys[0].value]",
+            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2018-07-01').keys[0].value]",
             "description": "string"
           }
         },
         {
           "name": "[variables('runbookName')]",
           "type": "runbooks",
-          "apiVersion": "2019-06-01",
+          "apiVersion": "2015-10-31",
           "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -207,7 +206,7 @@
         {
           "name": "[variables('psModules').azAccounts.name]",
           "type": "Modules",
-          "apiVersion": "2019-06-01",
+          "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -221,7 +220,7 @@
         {
           "name": "[variables('psModules').azStorage.name]",
           "type": "Modules",
-          "apiVersion": "2019-06-01",
+          "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -236,7 +235,7 @@
         {
           "name": "[variables('guid1')]",
           "type": "jobs",
-          "apiVersion": "2019-06-01",
+          "apiVersion": "2015-01-01-preview",
           "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
@@ -612,7 +611,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
-      "name": "[parameters('vmName')]",
+      "name": "[variables('vmName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",

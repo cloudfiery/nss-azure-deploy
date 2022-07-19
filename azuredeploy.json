@@ -225,7 +225,7 @@
           ],
           "properties": {
             "runbookType": "Script",
-            "logProgress": "boolean",
+            "logProgress": "false",
             "logVerbose": "false",
             "description": "[variables('runbookDescription')]",
             "publishContentLink": {

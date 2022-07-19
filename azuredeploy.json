@@ -266,7 +266,7 @@
         {
           "name": "[variables('guid1')]",
           "type": "jobs",
-          "apiVersion": "2015-01-01-preview",
+          "apiVersion": "2015-10-31",
           "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",

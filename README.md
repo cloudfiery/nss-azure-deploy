@@ -17,4 +17,5 @@ Support for this ARM template is made available exclusively through Github repo 
 This work is released under the MIT license. A copy of the license is provided in the [LICENSE](https://github.com/willguibr/nss-azure-deploy/blob/master/LICENSE) file.
 
 ## References
+
 - [About Nanolog Streaming Service](https://help.zscaler.com/zia/about-nanolog-streaming-service)

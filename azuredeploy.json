@@ -106,21 +106,21 @@
   },
   "variables": {
     "publicIPDns": "[concat('gw-', uniqueString(resourceGroup().id))]",
-    "publicIPAddress1Name": "[concat(variables('vmName'), '-ip')]",
-    "publicIPAddress2Name": "[concat(variables('natGatewayName'), '-ip')]",
+    "publicIPAddress1Name": "[concat(variables('vmName'), '-IP')]",
+    "publicIPAddress2Name": "[concat(variables('natGatewayName'), '-IP')]",
     "publicIpAddresses": [
       {
         "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress1Name'))]"
       }
     ],
     "location": "[resourceGroup().location]",
-    "vmName": "[concat(parameters('vmName'), '-vm')]",
+    "vmName": "[concat(parameters('vmName'), '-VM')]",
     "virtualNetworkName": "[parameters('virtualNetworkName')]",
     "subnetName": "[parameters('subnetName')]",
-    "nic1Name": "[concat(variables('vmName'), '-mgmt-nic')]",
-    "nic2Name": "[concat(variables('vmName'), '-srvc-nic')]",
+    "nic1Name": "[concat(variables('vmName'), '-MGMT-NIC')]",
+    "nic2Name": "[concat(variables('vmName'), '-SRVC-NIC')]",
 
-    "natGatewayName": "[concat(variables('virtualNetworkName'), '-natgw')]",
+    "natGatewayName": "[concat(variables('virtualNetworkName'), '-NATGW')]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
     "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/main/scripts/copyvhd.ps1",
     "vhdStorageAccountNamePrefix": "vhdstorage",
@@ -154,7 +154,7 @@
         ]
       }
     },
-    "networkSecurityGroupName": "[concat(variables('vmName'), '-nsg')]",
+    "networkSecurityGroupName": "[concat(variables('vmName'), '-NSG')]",
     "subnetRef": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName'))]",
     "destinationOSvhdURL": "[concat('https://',variables('vhdStorageAccountName'), '.blob.core.windows.net/', variables('vhdStorageAccountContainerName'), '/', variables('destOSvhdName'))]",
     "uniqueBase1": "[toLower(uniqueString(parameters('virtualNetworkName'), resourceGroup().id))]",
@@ -440,7 +440,7 @@
       "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]",
-        "[parameters('virtualNetworkName')]"
+        "[variables('virtualNetworkName')]"
       ],
       "properties": {
         "ipConfigurations": [

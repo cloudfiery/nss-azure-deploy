@@ -388,7 +388,7 @@
     {
       "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddress1Name')]",
+      "name": "[variables('publicIPAddress2Name')]",
       "location": "[variables('location')]",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",

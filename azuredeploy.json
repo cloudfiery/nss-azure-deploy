@@ -304,23 +304,6 @@
       }
     },
     {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "type": "Microsoft.Network/natGateways",
-      "apiVersion": "2019-11-01",
-      "name": "[variables('natGatewayName')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress1Name'))]"
-      ],
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {
-        "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": "[if(not(empty(variables('publicIPDns'))), variables('publicIpAddresses'), json('null'))]"
-      }
-    },
-    {
       "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2019-11-01",
@@ -399,10 +382,27 @@
       "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-11-01",
-      "name": "[variables('publicIPAddress1Name')]",
+      "name": "[variables('publicIPAddress2Name')]",
       "location": "[variables('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
+      "type": "Microsoft.Network/natGateways",
+      "apiVersion": "2019-11-01",
+      "name": "[variables('natGatewayName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]"
+      ],
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 4,
+        "publicIpAddresses": "[if(not(empty(variables('publicIPDns'))), variables('publicIpAddresses'), json('null'))]"
       }
     },
     {

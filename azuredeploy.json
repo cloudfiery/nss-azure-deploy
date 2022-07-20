@@ -73,7 +73,7 @@
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "Zscaler-NSS-Subnet",
       "metadata": {
         "description": "If vNetNewOrExisting is set to existing, than specify the subnet that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new subnet. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 1 and 80 characters."
       }
@@ -284,169 +284,6 @@
           }
         }
       ]
-    },
-    {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-11-01",
-      "name": "[variables('publicIPAddress1Name')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {
-        "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "idleTimeoutInMinutes": 4,
-        "dnsSettings": {
-          "domainNameLabel": "[variables('publicIPDns')]"
-        }
-      }
-    },
-    {
-      "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-11-01",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('vnetAddressSpace')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('subnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('vnetSubnetPrefix')]",
-              "natGateway": {
-                "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-              },
-              "privateEndpointNetworkPolicies": "Enabled",
-              "privateLinkServiceNetworkPolicies": "Enabled"
-            }
-          }
-        ],
-        "enableDdosProtection": false,
-        "enableVmProtection": false
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-      ]
-    },
-    {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "type": "Microsoft.Network/natGateways",
-      "apiVersion": "2019-11-01",
-      "name": "[variables('natGatewayName')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {
-        "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": "[if(not(empty(variables('publicIPDns'))), variables('publicIpAddresses'), json('null'))]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]"
-      ]
-    },
-    {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2019-11-01",
-      "name": "[concat(variables('virtualNetworkName'), '/znss-Subnet')]",
-      "properties": {
-        "addressPrefix": "[parameters('vnetSubnetPrefix')]",
-        "natGateway": {
-          "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-        },
-        "privateEndpointNetworkPolicies": "Enabled",
-        "privateLinkServiceNetworkPolicies": "Enabled"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-      ]
-    },
-    {
-      "apiVersion": "2020-05-01",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nic1Name')]",
-      "location": "[variables('location')]",
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddress1Name'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              },
-              "primary": true,
-              "privateIPAddressVersion": "IPv4"
-            }
-          }
-        ],
-        "enableAcceleratedNetworking": false,
-        "enableIPForwarding": false,
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'), 'znss-Subnet')]",
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddress1Name'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-      ]
-    },
-    {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "apiVersion": "2019-11-01",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddress2Name')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {
-        "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('vmName')]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2020-05-01",
-      "name": "[variables('nic2Name')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]",
-        "[variables('virtualNetworkName')]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              },
-              "primary": true
-            }
-          }
-        ],
-        "primary": false,
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
-        }
-      }
     },
    {
       "comments": "Default Network Security Group for ZNSS template",
@@ -694,6 +531,169 @@
             }
           }
         ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-11-01",
+      "name": "[variables('publicIPAddress1Name')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[variables('publicIPDns')]"
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
+      "apiVersion": "2019-11-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddress2Name')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('vmName')]"
+        }
+      }
+    },
+    {
+      "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-11-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressSpace')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('vnetSubnetPrefix')]",
+              "natGateway": {
+                "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+              },
+              "privateEndpointNetworkPolicies": "Enabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+          }
+        ],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
+      "type": "Microsoft.Network/natGateways",
+      "apiVersion": "2019-11-01",
+      "name": "[variables('natGatewayName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 4,
+        "publicIpAddresses": "[if(not(empty(variables('publicIPDns'))), variables('publicIpAddresses'), json('null'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]"
+      ]
+    },
+    {
+      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2019-11-01",
+      "name": "[concat(variables('virtualNetworkName'), '/Zscaler-NSS-Subnet')]",
+      "properties": {
+        "addressPrefix": "[parameters('vnetSubnetPrefix')]",
+        "natGateway": {
+          "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+        },
+        "privateEndpointNetworkPolicies": "Enabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2020-05-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nic1Name')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddress1Name'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'), 'Zscaler-NSS-Subnet')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddress1Name'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('nic2Name')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]",
+        "[variables('virtualNetworkName')]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "primary": true
+            }
+          }
+        ],
+        "primary": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
+        }
       }
     },
     {

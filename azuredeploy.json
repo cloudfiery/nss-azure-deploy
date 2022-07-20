@@ -119,7 +119,7 @@
     "subnetName": "[parameters('subnetName')]",
     "nic1Name": "[concat(variables('vmName'), '-MGMT-NIC')]",
     "nic2Name": "[concat(variables('vmName'), '-SRVC-NIC')]",
-
+    "publicIPAddressType": "Dynamic",
     "natGatewayName": "[concat(variables('virtualNetworkName'), '-NATGW')]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
     "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/main/scripts/copyvhd.ps1",
@@ -358,7 +358,9 @@
       "name": "[variables('nic1Name')]",
       "location": "[variables('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), 'znss-Subnet')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddress1Name'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'), 'znss-Subnet')]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
       ],
       "properties": {
@@ -367,25 +369,32 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddress1Name'))]"
+              },
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
-              }
+                "id": "[variables('subnetRef')]"
+              },
+              "primary": true
             }
           }
         ],
+        "primary": true,
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
         }
       }
     },
     {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
+      "apiVersion": "2020-05-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-11-01",
-      "name": "[variables('publicIPAddress2Name')]",
+      "name": "[variables('publicIPAddress1Name')]",
       "location": "[variables('location')]",
       "properties": {
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('vmName')]"
+        }
       }
     },
     {
@@ -407,35 +416,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2018-04-01",
-      "name": "[variables('nic1Name')]",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress1Name'))]",
-        "[variables('virtualNetworkName')]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress1Name'))]"
-              },
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              },
-              "primary": true
-            }
-          }
-        ],
-        "primary": true
-      }
-    },
-    {
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2018-04-01",
+      "apiVersion": "2020-05-01",
       "name": "[variables('nic2Name')]",
       "location": "[variables('location')]",
       "dependsOn": [
@@ -448,9 +429,6 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]"
-              },
               "subnet": {
                 "id": "[variables('subnetRef')]"
               },
@@ -458,7 +436,10 @@
             }
           }
         ],
-        "primary": false
+        "primary": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
+        }
       }
     },
    {

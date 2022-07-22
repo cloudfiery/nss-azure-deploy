@@ -2,6 +2,44 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "region of resources"
+      }
+    },
+    "newStorageAccount": {
+      "type": "string",
+      "metadata": {
+        "description": "Globally unique lowercase name of your storage account"
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "metadata": {
+        "description": "The type of the Storage Account created"
+      },
+      "defaultValue": "Standard_LRS"
+    },
+    "storageAccountNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "Description": "Indicates whether the Storage Account is new or existing"
+      }
+    },
+    "existingStorageAccountRG": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Storage Resource Group of the Existing VM."
+      }
+    },
     "vmName": {
       "type": "string",
       "metadata": {
@@ -24,7 +62,7 @@
     },
     "authenticationType": {
       "type": "string",
-      "defaultValue": "sshPublicKey",
+      "defaultValue": "password",
       "allowedValues": [
         "sshPublicKey",
         "password"
@@ -100,10 +138,32 @@
       "type": "string",
       "defaultValue": "192.168.100.0/25",
       "metadata": {
-        "description": "Subnet prefix for virtual network"
+        "description": "Subnet prefix for virtual network."
+      }
+    },
+    "nameServers": {
+      "type": "string",
+      "defaultValue": "168.63.129.16",
+      "metadata": {
+        "description": "Default Zscaler DNS Name Server"
+      }
+    },
+    "smNetDev": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Service interface IP address with netmask."
+      }
+    },
+    "smNetDfltGw": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Service interface default gateway IP address."
       }
     }
   },
+
   "variables": {
     "publicIPDns": "[concat('gw-', uniqueString(resourceGroup().id))]",
     "publicIPAddress1Name": "[concat(variables('vmName'), '-IP')]",
@@ -136,11 +196,11 @@
     "psModules": {
       "azAccounts": {
         "name": "Az.Accounts",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.accounts.1.5.1.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.accounts.2.5.1.nupkg"
       },
       "azStorage": {
         "name": "Az.Storage",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.storage.1.2.0.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.storage.2.0.0.nupkg"
       }
     },
     "linuxConfiguration": {
@@ -165,7 +225,7 @@
       "name": "[variables('vhdStorageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[variables('location')]",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2021-09-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
       },
@@ -174,7 +234,7 @@
       "resources": [
         {
           "type": "blobServices/containers",
-          "apiVersion": "2018-07-01",
+          "apiVersion": "2021-09-01",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]"
           ],
@@ -185,7 +245,7 @@
     {
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
-      "apiVersion": "2015-10-31",
+      "apiVersion": "2021-06-22",
       "location": "[variables('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
@@ -199,7 +259,7 @@
         {
           "name": "automationCredential",
           "type": "credentials",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -213,7 +273,7 @@
         {
           "name": "[variables('runbookName')]",
           "type": "runbooks",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2019-06-01",
           "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -232,7 +292,7 @@
         {
           "name": "[variables('psModules').azAccounts.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -246,7 +306,7 @@
         {
           "name": "[variables('psModules').azStorage.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -261,7 +321,7 @@
         {
           "name": "[variables('guid1')]",
           "type": "jobs",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2019-06-01",
           "location": "[variables('location')]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
@@ -285,10 +345,10 @@
         }
       ]
     },
-   {
+    {
       "comments": "Default Network Security Group for ZNSS template",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('networkSecurityGroupName')]",
       "location": "[variables('location')]",
       "properties": {
@@ -535,7 +595,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('publicIPAddress1Name')]",
       "location": "[variables('location')]",
       "sku": {
@@ -552,7 +612,7 @@
     },
     {
       "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-11-01",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('publicIPAddress2Name')]",
       "location": "[variables('location')]",
@@ -570,7 +630,7 @@
     {
       "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('virtualNetworkName')]",
       "location": "[variables('location')]",
       "properties": {
@@ -602,7 +662,7 @@
     {
       "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
       "type": "Microsoft.Network/natGateways",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('natGatewayName')]",
       "location": "[variables('location')]",
       "sku": {
@@ -619,7 +679,7 @@
     {
       "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
       "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-11-01",
       "name": "[concat(variables('virtualNetworkName'), '/Zscaler-NSS-Subnet')]",
       "properties": {
         "addressPrefix": "[parameters('vnetSubnetPrefix')]",
@@ -635,7 +695,7 @@
       ]
     },
     {
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-11-01",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nic1Name')]",
       "location": "[variables('location')]",
@@ -670,7 +730,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-11-01",
       "name": "[variables('nic2Name')]",
       "location": "[variables('location')]",
       "dependsOn": [
@@ -698,7 +758,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2021-03-01",
       "name": "[parameters('vmName')]",
       "location": "[variables('location')]",
       "dependsOn": [
@@ -746,6 +806,32 @@
               }
             }
           ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'),'/znssCustomScriptExtension')]",
+      "apiVersion": "2019-12-01",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "timestamp": 123456789,
+          "fileUris": [
+            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/main/znssCustomScriptExtension.sh"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat('sh ./znssCustomScriptExtension.sh', ' ', parameters('nameServers'), parameters('smNetDev'), parameters('smNetDfltGw'))]",
+          "storageAccountName": "[variables('vhdStorageAccountName')]",
+          "storageAccountKey": ""
         }
       }
     }

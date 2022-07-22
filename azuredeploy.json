@@ -190,7 +190,7 @@
     {
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
-      "apiVersion": "2015-10-31",
+      "apiVersion": "2015-01-01-preview",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
@@ -218,7 +218,7 @@
         {
           "name": "[variables('runbookName')]",
           "type": "runbooks",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2015-01-01-preview",
           "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -266,7 +266,7 @@
         {
           "name": "[variables('guid1')]",
           "type": "jobs",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2015-01-01-preview",
           "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",

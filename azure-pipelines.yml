@@ -13,7 +13,7 @@ steps:
 - task: ZscalerIaCScan@0
   inputs:
     region: 'US'
-    clientId: 'tbOn8a512MSTLFLzuHWgG8TW8TOUbNwO'
-    clientSecret: 'MTjg0xE9ohct_KJ3rgTRPHxprjsLYxufw_aqXRysqwz70q0Yjcc_KHfVSaZaDYYh'
+    clientId: ''
+    clientSecret: ''
     failBuild: true
 

@@ -1,0 +1,19 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: ZscalerIaCScan@0
+  inputs:
+    region: 'US'
+    clientId: 'tbOn8a512MSTLFLzuHWgG8TW8TOUbNwO'
+    clientSecret: 'MTjg0xE9ohct_KJ3rgTRPHxprjsLYxufw_aqXRysqwz70q0Yjcc_KHfVSaZaDYYh'
+    failBuild: true
+

@@ -1,24 +1,51 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "vmName": {
-        "value": "GEN-UNIQUE-10"
-      },
-      "vmSize": {
-        "value": "Standard_E4-2s_v3"
-      },
-      "vnetNewOrExisting": {
-        "value": "existing"
-      },
-      "virtualNetworkName": {
-        "value": "GET-PREREQ-virtualNetworkName"
-      },
-      "subnetName": {
-        "value": "GET-PREREQ-subnetName"
-      },
-      "SAS-Token": {
-        "value": ""
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newStorageAccount": {
+      "value": "existing"
+  },
+  "storageAccountType": {
+    "value":"Standard_LRS"
+  },
+  "storageAccountNewOrExisting" : {
+    "value" : "new"
+  },
+  "existingStorageAccountRG": {
+    "value" : ""
+  },
+    "vmName": {
+      "value": "GEN-UNIQUE-10"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_E4-2s_v3"
+    },
+    "vnetNewOrExisting": {
+      "value": "existing"
+    },
+    "virtualNetworkName": {
+      "value": "GET-PREREQ-virtualNetworkName"
+    },
+    "natGatewayNeeded": {
+      "value": "no"
+    },
+    "NEW_NAME_SERVER_IP": {
+      "value": "168.63.129.16"
+    },
+    "SM_NET_DEV": {
+      "value": ""
+    },
+    "SM_NET_DFLT_GW": {
+      "value": ""
+    },
+    "adminUsername": {
+      "value": "GEN-UNIQUE"
+    },
+    "adminPasswordOrKey": {
+      "value": "GEN-SSH-PUB-KEY"
+    },
+    "sasToken": {
+      "value": "GEN-UNIQUE-10"
     }
   }
+}

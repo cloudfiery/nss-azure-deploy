@@ -2,13 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "region of resources"
-      }
-    },
     "newStorageAccount": {
       "type": "string",
       "metadata": {
@@ -141,21 +134,21 @@
         "description": "Subnet prefix for virtual network."
       }
     },
-    "nameServers": {
+    "NEW_NAME_SERVER_IP": {
       "type": "string",
       "defaultValue": "168.63.129.16",
       "metadata": {
         "description": "Default Zscaler DNS Name Server"
       }
     },
-    "smNetDev": {
+    "SM_NET_DEV": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "Service interface IP address with netmask."
       }
     },
-    "smNetDfltGw": {
+    "SM_NET_DFLT_GW": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
@@ -829,7 +822,7 @@
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('sh ./znssCustomScriptExtension.sh', ' ', parameters('nameServers'), parameters('smNetDev'), parameters('smNetDfltGw'))]",
+          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('NEW_NAME_SERVER_IP'), parameters('SM_NET_DEV'), parameters('SM_NET_DFLT_GW'))]",
           "storageAccountName": "[variables('vhdStorageAccountName')]",
           "storageAccountKey": ""
         }

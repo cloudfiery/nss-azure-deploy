@@ -30,11 +30,11 @@ done
 
 # NSS Server Interface IP Configuration
 echo "Enter service interface IP address with netmask. (ex. 192.166.100.4/24): "
-read MY_IP
+read SM_NET_DEV
 
 # NSS Default Gateway Configuration
 DEFAULT_GW=$(netstat -r | grep default | awk '{print $2}')
-echo "Enter service interface default gateway IP address, press enter for [${DEFAULT_GW}]: "
+echo "Enter service interface default gateway IP address, press enter for [${SM_NET_DFLT_GW}]: "
 read DEFAULT_GW_ENTERED
 if ! [ -z "${DEFAULT_GW_ENTERED}" ]; then
     DEFAULT_GW=${DEFAULT_GW_ENTERED}
@@ -52,7 +52,7 @@ for new_server in "${NEW_NAME_SERVER_IPS[@]}"
 do
     NEW_SERVERS_COMMAND+="y\n${new_server}\n"
 done
-printf "${SKIP_SERVERS}${NEW_SERVERS_COMMAND}\n${MY_IP}\n${DEFAULT_GW}\n\n" | sudo nss configure
+printf "${SKIP_SERVERS}${NEW_SERVERS_COMMAND}\n${SM_NET_DEV}\n${SM_NET_DFLT_GW}\n\n" | sudo nss configure
 
 echo "Successfully Applied Changes"
 

@@ -141,14 +141,14 @@
         "description": "Default Zscaler DNS Name Server"
       }
     },
-    "SM_NET_DEV": {
+    "smnet_dev": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "Service interface IP address with netmask."
       }
     },
-    "SM_NET_DFLT_GW": {
+    "smnet_dflt_gw": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
@@ -818,11 +818,11 @@
         "settings": {
           "timestamp": 123456789,
           "fileUris": [
-            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/main/znssCustomScriptExtension.sh"
+            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znssCustomScriptExtension.sh"
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('NEW_NAME_SERVER_IP'), parameters('SM_NET_DEV'), parameters('SM_NET_DFLT_GW'))]",
+          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('NEW_NAME_SERVER_IP'), parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
           "storageAccountName": "[variables('vhdStorageAccountName')]",
           "storageAccountKey": ""
         }

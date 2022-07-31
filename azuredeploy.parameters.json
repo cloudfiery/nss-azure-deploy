@@ -32,10 +32,10 @@
     "NEW_NAME_SERVER_IP": {
       "value": "168.63.129.16"
     },
-    "SM_NET_DEV": {
+    "smnet_dev": {
       "value": ""
     },
-    "SM_NET_DFLT_GW": {
+    "smnet_dflt_gw": {
       "value": ""
     },
     "adminUsername": {

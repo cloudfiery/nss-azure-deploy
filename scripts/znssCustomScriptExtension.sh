@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-sleep 15
+sleep 10
 
 # Install NSS Certificate
 if ! [ -f "NssCertificate.zip" ]; then
@@ -14,15 +14,24 @@ echo "Installing Certificate"
 sudo nss install-cert NssCertificate.zip
 
 # NSS Service Interface and Default Gateway IP Configuration
-# Parameters passed by user input via ARM Template
+# Parameters passed by the user input via ARM Template
 echo "Set Service Interface and Default Gateway IP Address"
-smnet_dev=${SMNET_IPMASK}
-smnet_dflt_gw=${SMNET_GW}
+smnet_dev=${SMNET_IPMASK} # This value must be passed to the service interface IP question (Line 43)
+smnet_dflt_gw=${SMNET_GW} # This value must be passed to the service interface IP question (Line 61)
 sudo nss configure --cliinput ${SMNET_IPMASK},${SMNET_GW}
-
 echo "Successfully Applied Changes"
 
+# DNS Server IP Addresses
+# Parameters are passed by the user input via ARM Template
+dns_server1=${DNS_SERVER1}
+dns_server2=${DNS_SERVER2}
+
 # Configure NSS Settings
+#Comment: Probably the most difficult part. The system will ask for name name server.
+# If answer is no, then jump straight to line 47
+# If answer is yes, user will provide the nameserver IP.
+# system continues to ask for a nameserver until answer is no
+# Ideally I want to only support a maximum of 2 name server IPs and then jump to line 47.
 NEW_NAME_SERVER_IPS=()
 NEW_NS="n"
 echo "Do you wish to add a new nameserver? <n:no y:yes> , press enter for [n]"
@@ -40,16 +49,21 @@ until [ -z "$RESP" ] || [ "$RESP"  != "y" ]; do
 done
 
 # NSS Server Interface IP Configuration
-echo "Enter service interface IP address with netmask. (ex. 192.168.100.130/25): "
+# Comment: Service IP is being passed by the variable SMNET_IPMASK on line 19
+# Need to press enter to proceed
+echo "Enter service interface IP address with netmask. (ex. 192.168.100.130/25):" ${SMNET_IPMASK}
 read SMNET_IPMASK
 
 # NSS Default Gateway Configuration
-SMNET_GW=$(netstat -r | grep default | awk '{print $2}')
-#echo "Enter service interface default gateway IP address, press enter for [${SMNET_GW}]: "
+# Comment: I don't think I need line 49 anymore,
+# as I am passing the default gateway via variable SMNET_GW on line 20
+DEFAULT_GW=$(netstat -r | grep default | awk '{print $2}')
+echo "Enter service interface default gateway IP address, press enter for [${DEFAULT_GW}]:" ${SMNET_GW} # Need to press enter to proceed
 read DEFAULT_GW_ENTERED
 if ! [ -z "${DEFAULT_GW_ENTERED}" ]; then
-    SMNET_GW=${DEFAULT_GW_ENTERED}
+    DEFAULT_GW=${DEFAULT_GW_ENTERED}
 fi
+
 SERVERS=$(sudo nss dump-config | grep "nameserver:"|  tr  "nameserver:" " " | tr [:space:] " ")
 IFS=', ' read -r -a EXISTING_NAME_SERVERS <<< "$SERVERS"
 # -----
@@ -65,7 +79,10 @@ do
 done
 printf "${SKIP_SERVERS}${NEW_SERVERS_COMMAND}\n${SMNET_IPMASK}\n${SMNET_GW}\n\n" | sudo nss configure
 
+
+
 # Download NSS Binaries
+# Comment: No need to touch this section.
 sudo nss update-now
 echo "Connecting to server..."
 echo "Downloading latest version" # Wait until system echo back the next message
@@ -91,8 +108,6 @@ sudo nss troubleshoot netstat|grep tcp >> nss_dump_config.log
 sudo nss test-firewall >> nss_dump_config.log
 sudo nss troubleshoot netstat >> nss_dump_config.log
 /sc/bin/smmgr -ys smnet=ifconfig >> nss_dump_config.log
-# cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" >> nss_dump_config.log
-# smnet_dev=/dev/tap0:172.31.17.111/20
-# smnet_dflt_gw=172.31.16.1
+cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" >> nss_dump_config.log
 
 exit 0

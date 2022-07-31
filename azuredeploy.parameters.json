@@ -29,8 +29,11 @@
     "natGatewayNeeded": {
       "value": "no"
     },
-    "NEW_NAME_SERVER_IP": {
-      "value": "168.63.129.16"
+    "dns_server1": {
+      "value": ""
+    },
+    "dns_server2": {
+      "value": ""
     },
     "smnet_dev": {
       "value": ""

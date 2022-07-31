@@ -134,9 +134,16 @@
         "description": "Subnet prefix for virtual network."
       }
     },
-    "NEW_NAME_SERVER_IP": {
+    "dns_server1": {
       "type": "string",
-      "defaultValue": "168.63.129.16",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Default Zscaler DNS Name Server"
+      }
+    },
+    "dns_server2": {
+      "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Default Zscaler DNS Name Server"
       }
@@ -822,7 +829,7 @@
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('NEW_NAME_SERVER_IP'), parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
+          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('dns_server1'), parameters('dns_server2'),parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
           "storageAccountName": "[variables('vhdStorageAccountName')]",
           "storageAccountKey": ""
         }

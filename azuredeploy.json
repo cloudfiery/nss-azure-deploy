@@ -134,20 +134,6 @@
         "description": "Subnet prefix for virtual network."
       }
     },
-    "dns_server1": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Default Zscaler DNS Name Server"
-      }
-    },
-    "dns_server2": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Default Zscaler DNS Name Server"
-      }
-    },
     "smnet_dev": {
       "type": "string",
       "defaultValue": "",
@@ -182,7 +168,7 @@
     "publicIPAddressType": "Dynamic",
     "natGatewayName": "[concat(variables('virtualNetworkName'), '-NATGW')]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
-    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/main/scripts/copyvhd.ps1",
+    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
@@ -196,11 +182,11 @@
     "psModules": {
       "azAccounts": {
         "name": "Az.Accounts",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.accounts.2.5.1.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.accounts.2.5.1.nupkg"
       },
       "azStorage": {
         "name": "Az.Storage",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/main/assets/az.storage.2.0.0.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.storage.2.0.0.nupkg"
       }
     },
     "linuxConfiguration": {
@@ -811,7 +797,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/znssCustomScriptExtension')]",
+      "name": "[concat(variables('vmName'),'/znss-init')]",
       "apiVersion": "2019-12-01",
       "location": "[variables('location')]",
       "dependsOn": [
@@ -825,11 +811,11 @@
         "settings": {
           "timestamp": 123456789,
           "fileUris": [
-            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znssCustomScriptExtension.sh"
+            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znss-init.sh"
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('bash ./znssCustomScriptExtension.sh', ' ', parameters('dns_server1'), parameters('dns_server2'),parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
+          "commandToExecute": "[concat('bash ./znss-init.sh', ' ', parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
           "storageAccountName": "[variables('vhdStorageAccountName')]",
           "storageAccountKey": ""
         }

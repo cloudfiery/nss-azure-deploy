@@ -29,12 +29,6 @@
     "natGatewayNeeded": {
       "value": "no"
     },
-    "dns_server1": {
-      "value": ""
-    },
-    "dns_server2": {
-      "value": ""
-    },
     "smnet_dev": {
       "value": ""
     },

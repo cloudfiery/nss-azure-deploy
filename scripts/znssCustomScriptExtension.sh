@@ -16,16 +16,18 @@ sudo nss install-cert NssCertificate.zip
 # NSS Service Interface and Default Gateway IP Configuration
 # Parameters passed by the user input via ARM Template
 echo "Set Service Interface and Default Gateway IP Address"
+SMNET_GW=$(netstat -r | grep default | awk '{print $2}')
 smnet_dev=${SMNET_IPMASK} # This value must be passed to the service interface IP question (Line 43)
 smnet_dflt_gw=${SMNET_GW} # This value must be passed to the service interface IP question (Line 61)
 sudo nss configure --cliinput ${SMNET_IPMASK},${SMNET_GW}
 echo "Successfully Applied Changes"
-
 # DNS Server IP Addresses
 # Parameters are passed by the user input via ARM Template
 dns_server1=${DNS_SERVER1}
 dns_server2=${DNS_SERVER2}
 
+cat >> {DNS_SERVER1}
+cat >> {DNS_SERVER2}
 # Configure NSS Settings
 #Comment: Probably the most difficult part. The system will ask for name name server.
 # If answer is no, then jump straight to line 47

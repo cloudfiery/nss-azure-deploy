@@ -2,86 +2,40 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "newStorageAccount": {
+    "location": {
       "type": "string",
-      "metadata": {
-        "description": "Globally unique lowercase name of your storage account"
-      }
-    },
-    "storageAccountType": {
-      "type": "string",
-      "metadata": {
-        "description": "The type of the Storage Account created"
-      },
-      "defaultValue": "Standard_LRS"
-    },
-    "storageAccountNewOrExisting": {
-      "type": "string",
-      "defaultValue": "new",
+      "defaultValue": "westus2",
       "allowedValues": [
-        "new",
-        "existing"
+        "australiacentral",
+        "australiaeast",
+        "australiasoutheast",
+        "brazilsouth",
+        "canadacentral",
+        "centralindia",
+        "eastasia",
+        "eastus",
+        "eastus2",
+        "francecentral",
+        "japaneast",
+        "koreacentral",
+        "northcentralus",
+        "northeurope",
+        "southcentralus",
+        "southeastasia",
+        "uksouth",
+        "westcentralus",
+        "westeurope",
+        "westus2"
       ],
       "metadata": {
-        "Description": "Indicates whether the Storage Account is new or existing"
+        "description": "Location for all resources to be deployed in."
       }
     },
-    "existingStorageAccountRG": {
+    "SAS-Token": {
       "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Storage Resource Group of the Existing VM."
-      }
-    },
-    "vmName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Virtual Machine (VM)"
-      }
-    },
-    "virtualMachineSize": {
-      "type": "string",
-      "defaultValue": "Standard_E4-2s_v3",
-      "metadata": {
-        "description": "Virtual Machine Size"
-      }
-    },
-    "sasToken": {
-      "type": "string",
-      "defaultValue": "",
+      "defaultValue": "sv=2019-02-02&ss=b&srt=sco&sp=rl&se=2023-03-12T09:20:42Z&st=2020-03-12T00:20:42Z&spr=https&sig=p6OHCAv5Rxax9i1F%2BLaYBDmvUNI64VZGtDHcm9CsE0Y%3D",
       "metadata": {
         "description": "SAS Token for Zscaler's VHDs. Contact Zscaler Support to receive the token. Example of SAS token: sp=r&st=2019-05-07T03:18:56Z&se=2020-05-31T11:18:56Z&spr=https&sv=2018-03-28&sig=AmDuefmdf7lNjrF0aOdUenpuwmo4F5uq7X2oFFtHTzg%3D&sr=b"
-      }
-    },
-    "authenticationType": {
-      "type": "string",
-      "defaultValue": "password",
-      "allowedValues": [
-        "sshPublicKey",
-        "password"
-      ],
-      "metadata": {
-        "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
-      }
-    },
-    "adminUsername": {
-      "type": "string",
-      "defaultValue": "zsroot",
-      "metadata": {
-        "description": "This is the username you wish to assign to your VMs admin account"
-      }
-    },
-    "adminPasswordOrKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
-      }
-    },
-    "virtualNetworkResourceGroup": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]",
-      "metadata": {
-        "description": "Name of the existing VNET resource group. If vNetNewOrExisting is set to existing, than specify the Resource Group where existing Virtual Network is located. If vNetNewOrExisting i set to new, leave this field as [resourceGroup().name]"
       }
     },
     "vNetNewOrExisting": {
@@ -95,11 +49,36 @@
         "description": "Specify whether to create a new or use existing virtual network for the VM."
       }
     },
+    "stgNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Specify whether to create a new or use existing virtual network for the VM."
+      }
+    },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "Zscaler-NSS-VNET",
       "metadata": {
-        "description": "Name of the virtual network"
+        "description": "If vNetNewOrExisting is set to existing, than specify the Virtual Network that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new Virtual Network. Existing Virtual Network must be located in the same location as to where this template is being deployed. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 2 and 64 characters."
+      }
+    },
+    "virtualNetworkResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of the existing VNET resource group. If vNetNewOrExisting is set to existing, than specify the Resource Group where existing Virtual Network is located. If vNetNewOrExisting i set to new, leave this field as [resourceGroup().name]"
+      }
+    },
+    "vNetAddressRange": {
+      "type": "string",
+      "defaultValue": "192.168.100.0/24",
+      "metadata": {
+        "description": "Address Range of new or existing Virtual Network."
       }
     },
     "subnetName": {
@@ -109,70 +88,97 @@
         "description": "If vNetNewOrExisting is set to existing, than specify the subnet that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new subnet. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 1 and 80 characters."
       }
     },
-    "natGatewayNeeded": {
+    "subnetName2": {
       "type": "string",
-      "defaultValue": "no",
-      "allowedValues": [
-        "yes",
-        "no"
-      ],
+      "defaultValue": "Zscaler-NSS-MGMGT-Subnet",
       "metadata": {
-        "description": "Specify whether to create a new or existing virtual network for the VM."
+        "description": "If vNetNewOrExisting is set to existing, than specify the subnet that alredy exist. If vNetNewOrExisting is set to new, than provide name for the new subnet. The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens. The name must be between 1 and 80 characters."
       }
     },
-    "vnetAddressSpace": {
-      "type": "string",
-      "defaultValue": "192.168.100.0/24",
-      "metadata": {
-        "description": "Address space of new or existing Virtual Network."
-      }
-    },
-    "vnetSubnetPrefix": {
+    "subnetAddressRange": {
       "type": "string",
       "defaultValue": "192.168.100.0/25",
       "metadata": {
-        "description": "Subnet prefix for virtual network."
+        "description": "Address Range of new or existing Subnet."
       }
     },
-    "smnet_dev": {
+    "subnetAddressRange2": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "192.168.100.128/28",
       "metadata": {
-        "description": "Service interface IP address with netmask."
+        "description": "Address Range of MGMT Subnet."
       }
     },
-    "smnet_dflt_gw": {
+    "vmName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "Zscaler-NSS-VM",
       "metadata": {
-        "description": "Service interface default gateway IP address."
+        "description": "Name of the Virtual Machine (VM)"
       }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_E4-2s_v3",
+      "metadata": {
+        "description": "Size of the VM."
+      }
+    },
+    "networkSecurityGroupName": {
+      "type": "string",
+      "defaultValue": "Zscaler-NSS-NSG",
+      "metadata": {
+        "description": "Name of the new Network Security Group (NSG)"
+      }
+    },
+    "publicIPAddress1name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the new Public IP Address that will be associated with MGMT NIC."
+      },
+      "defaultValue": "Zscaler-NSS-MGMT-IP"
+    },
+    "publicIPAddress2name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the new Public IP Address that will be associated with SRVC NIC."
+      },
+      "defaultValue": "Zscaler-NSS-SRVC-IP"
+    },
+    "nic1name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the new Management Network Interface Card (NIC)."
+      },
+      "defaultValue": "Zscaler-NSS-MGMT-NIC"
+    },
+    "nic2name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the new Service Network Interface Card (NIC)."
+      },
+      "defaultValue": "Zscaler-NSS-SRVC-NIC"
+    },
+    "natGatewayName": {
+      "type": "string",
+      "defaultValue": "nssnatgw"
+    },
+    "SKU": {
+      "type": "string",
+      "defaultValue": "Standard"
+    },
+    "publicIPprefixName": {
+      "type": "string",
+      "defaultValue": "NATGW-PIP"
     }
   },
-
   "variables": {
-    "publicIPDns": "[concat('gw-', uniqueString(resourceGroup().id))]",
-    "publicIPAddress1Name": "[concat(variables('vmName'), '-IP')]",
-    "publicIPAddress2Name": "[concat(variables('natGatewayName'), '-IP')]",
-    "publicIpAddresses": [
-      {
-        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress1Name'))]"
-      }
-    ],
-    "location": "[resourceGroup().location]",
-    "vmName": "[concat(parameters('vmName'), '-VM')]",
-    "virtualNetworkName": "[parameters('virtualNetworkName')]",
-    "subnetName": "[parameters('subnetName')]",
-    "nic1Name": "[concat(variables('vmName'), '-MGMT-NIC')]",
-    "nic2Name": "[concat(variables('vmName'), '-SRVC-NIC')]",
-    "publicIPAddressType": "Dynamic",
-    "natGatewayName": "[concat(variables('virtualNetworkName'), '-NATGW')]",
+    "subnetRef2": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName2'))]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
-    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
+    "scriptUrl": "https://raw.githubusercontent.com/ossamasgr/F/main/copyvhd.ps1",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
-    "vhdStorageAccountContainerName": "zscalernssrprod01",
+    "vhdStorageAccountContainerName": "zscalernssrprod",
     "destOSvhdName": "znss_osdisk.vhd",
     "automationAccountNamePrefix": "VHDcopy-Automation",
     "automationAccountName": "[concat(variables('automationAccountNamePrefix'), '-', uniqueString(subscription().id, resourceGroup().id, deployment().name))]",
@@ -182,25 +188,13 @@
     "psModules": {
       "azAccounts": {
         "name": "Az.Accounts",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.accounts.2.5.1.nupkg"
+        "url": "https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.5.1"
       },
       "azStorage": {
         "name": "Az.Storage",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.storage.2.0.0.nupkg"
+        "url": "https://www.powershellgallery.com/api/v2/package/Az.Storage/2.0.0"
       }
     },
-    "linuxConfiguration": {
-      "disablePasswordAuthentication": true,
-      "ssh": {
-        "publicKeys": [
-          {
-            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-            "keyData": "[parameters('adminPasswordOrKey')]"
-          }
-        ]
-      }
-    },
-    "networkSecurityGroupName": "[concat(variables('vmName'), '-NSG')]",
     "subnetRef": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName'))]",
     "destinationOSvhdURL": "[concat('https://',variables('vhdStorageAccountName'), '.blob.core.windows.net/', variables('vhdStorageAccountContainerName'), '/', variables('destOSvhdName'))]",
     "uniqueBase1": "[toLower(uniqueString(parameters('virtualNetworkName'), resourceGroup().id))]",
@@ -208,9 +202,10 @@
   },
   "resources": [
     {
-      "name": "[variables('vhdStorageAccountName')]",
+      "condition": "[equals(parameters('stgNewOrExisting'), 'new')]",
       "type": "Microsoft.Storage/storageAccounts",
-      "location": "[variables('location')]",
+      "name": "[variables('vhdStorageAccountName')]",
+      "location": "[parameters('location')]",
       "apiVersion": "2021-09-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
@@ -219,12 +214,12 @@
       "kind": "StorageV2",
       "resources": [
         {
-          "type": "blobServices/containers",
           "apiVersion": "2021-09-01",
+          "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+          "name": "[concat(variables('vhdStorageAccountName'),'/default/', variables('vhdStorageAccountContainerName'))]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]"
-          ],
-          "name": "[concat('default/',variables('vhdStorageAccountContainerName'))]"
+          ]
         }
       ]
     },
@@ -232,7 +227,7 @@
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2021-06-22",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
       ],
@@ -245,8 +240,8 @@
         {
           "name": "automationCredential",
           "type": "credentials",
-          "apiVersion": "2020-01-13-preview",
-          "location": "[variables('location')]",
+          "apiVersion": "2015-10-31",
+          "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -260,14 +255,14 @@
           "name": "[variables('runbookName')]",
           "type": "runbooks",
           "apiVersion": "2019-06-01",
-          "location": "[variables('location')]",
+          "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
           "properties": {
             "runbookType": "Script",
-            "logProgress": "false",
-            "logVerbose": "false",
+            "logProgress": false,
+            "logVerbose": false,
             "description": "[variables('runbookDescription')]",
             "publishContentLink": {
               "uri": "[variables('scriptUrl')]",
@@ -278,7 +273,7 @@
         {
           "name": "[variables('psModules').azAccounts.name]",
           "type": "Modules",
-          "apiVersion": "2020-01-13-preview",
+          "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -292,7 +287,7 @@
         {
           "name": "[variables('psModules').azStorage.name]",
           "type": "Modules",
-          "apiVersion": "2020-01-13-preview",
+          "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -308,7 +303,7 @@
           "name": "[variables('guid1')]",
           "type": "jobs",
           "apiVersion": "2019-06-01",
-          "location": "[variables('location')]",
+          "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -325,18 +320,18 @@
               "newStorageAccountContainerName": "[variables('vhdStorageAccountContainerName')]",
               "destVHDname": "[variables('destOSvhdName')]",
               "vhdURL": "[variables('sourceOSvhdURL')]",
-              "sasToken": "[parameters('sasToken')]"
+              "sasToken": "[parameters('SAS-Token')]",
+              "StorageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2021-09-01').keys[0].value]"
             }
           }
         }
       ]
     },
     {
-      "comments": "Default Network Security Group for ZNSS template",
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2020-11-01",
-      "name": "[variables('networkSecurityGroupName')]",
-      "location": "[variables('location')]",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
       "properties": {
         "securityRules": [
           {
@@ -581,110 +576,117 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-11-01",
-      "name": "[variables('publicIPAddress1Name')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('publicIPAddress1name')]",
+      "location": "[parameters('location')]",
       "properties": {
-        "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "idleTimeoutInMinutes": 4,
-        "dnsSettings": {
-          "domainNameLabel": "[variables('publicIPDns')]"
-        }
+        "publicIPAllocationMethod": "Dynamic"
       }
     },
     {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "apiVersion": "2020-11-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddress2Name')]",
-      "location": "[variables('location')]",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('publicIPAddress2name')]",
+      "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard"
+        "name": "[parameters('SKU')]"
       },
       "properties": {
-        "publicIPAddressVersion": "IPv4",
-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-        "dnsSettings": {
-          "domainNameLabel": "[parameters('vmName')]"
-        }
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPPrefixes",
+      "apiVersion": "2020-11-01",
+      "name": "[parameters('publicIPprefixName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('SKU')]"
+      },
+      "properties": {
+        "prefixLength": 31,
+        "publicIPAddressVersion": "IPv4"
       }
     },
     {
       "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
-      "type": "Microsoft.Network/virtualNetworks",
+      "type": "Microsoft.Network/natGateways",
       "apiVersion": "2020-11-01",
-      "name": "[variables('virtualNetworkName')]",
-      "location": "[variables('location')]",
+      "name": "[parameters('natgatewayname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('SKU')]"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 4,
+        "publicIpAddresses": [
+          {
+            "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]"
+          }
+        ],
+        "publicIpPrefixes": [
+          {
+            "id": "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('publicIPprefixName'))]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]",
+        "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('publicIPprefixName'))]"
+
+      ]
+    },
+    {
+      "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
+      ],
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[parameters('vnetAddressSpace')]"
+            "[parameters('vNetAddressRange')]"
           ]
         },
         "subnets": [
           {
-            "name": "[variables('subnetName')]",
+            "name": "[parameters('subnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('vnetSubnetPrefix')]",
-              "natGateway": {
-                "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+              "addressPrefix": "[parameters('subnetAddressRange')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
               },
+              "natGateway": {
+                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('subnetName2')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetAddressRange2')]",
               "privateEndpointNetworkPolicies": "Enabled",
               "privateLinkServiceNetworkPolicies": "Enabled"
             }
           }
-        ],
-        "enableDdosProtection": false,
-        "enableVmProtection": false
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-      ]
+        ]
+      }
+
     },
     {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "type": "Microsoft.Network/natGateways",
-      "apiVersion": "2020-11-01",
-      "name": "[variables('natGatewayName')]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {
-        "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": "[if(not(empty(variables('publicIPDns'))), variables('publicIpAddresses'), json('null'))]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]"
-      ]
-    },
-    {
-      "condition": "[equals(parameters('natGatewayNeeded'), 'yes')]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2020-11-01",
-      "name": "[concat(variables('virtualNetworkName'), '/Zscaler-NSS-Subnet')]",
-      "properties": {
-        "addressPrefix": "[parameters('vnetSubnetPrefix')]",
-        "natGateway": {
-          "id": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-        },
-        "privateEndpointNetworkPolicies": "Enabled",
-        "privateLinkServiceNetworkPolicies": "Enabled"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-      ]
-    },
-    {
-      "apiVersion": "2020-11-01",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nic1Name')]",
-      "location": "[variables('location')]",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('nic1name')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress1name'))]",
+        "[parameters('virtualNetworkName')]"
+      ],
       "properties": {
         "ipConfigurations": [
           {
@@ -692,43 +694,33 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddress1Name'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress1name'))]"
               },
               "subnet": {
-                "id": "[variables('subnetRef')]"
+                "id": "[variables('subnetRef2')]"
               },
-              "primary": true,
-              "privateIPAddressVersion": "IPv4"
+              "primary": true
             }
           }
         ],
-        "enableAcceleratedNetworking": false,
-        "enableIPForwarding": false,
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('subnetName'), 'Zscaler-NSS-Subnet')]",
-        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddress1Name'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-      ]
+        "primary": true
+      }
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2020-11-01",
-      "name": "[variables('nic2Name')]",
-      "location": "[variables('location')]",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('nic2name')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddress2Name'))]",
-        "[variables('virtualNetworkName')]"
+        "[parameters('virtualNetworkName')]"
       ],
       "properties": {
         "ipConfigurations": [
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "192.168.100.5",
               "subnet": {
                 "id": "[variables('subnetRef')]"
               },
@@ -736,31 +728,22 @@
             }
           }
         ],
-        "primary": false,
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
-        }
+        "primary": false
       }
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2021-03-01",
+      "apiVersion": "2021-11-01",
       "name": "[parameters('vmName')]",
-      "location": "[variables('location')]",
+      "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))]",
         "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'), '/', 'jobs', '/', variables('guid1'))]"
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('virtualMachineSize')]"
-        },
-        "osProfile": {
-          "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
+          "vmSize": "[parameters('vmSize')]"
         },
         "storageProfile": {
           "osDisk": {
@@ -780,13 +763,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",
               "properties": {
                 "primary": true
               }
             },
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))]",
               "properties": {
                 "primary": false
               }
@@ -794,33 +777,8 @@
           ]
         }
       }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/znss-init')]",
-      "apiVersion": "2019-12-01",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Azure.Extensions",
-        "type": "CustomScript",
-        "typeHandlerVersion": "2.1",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "timestamp": 123456789,
-          "fileUris": [
-            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znss-init.sh"
-          ]
-        },
-        "protectedSettings": {
-          "commandToExecute": "[concat('bash ./znss-init.sh', ' ', parameters('smnet_dev'), parameters('smnet_dflt_gw'))]",
-          "storageAccountName": "[variables('vhdStorageAccountName')]",
-          "storageAccountKey": ""
-        }
-      }
     }
+
   ],
   "outputs": {}
 }

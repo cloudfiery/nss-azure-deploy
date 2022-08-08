@@ -174,7 +174,7 @@
   "variables": {
     "subnetRef2": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'),  parameters('subnetName2'))]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
-    "scriptUrl": "https://raw.githubusercontent.com/ossamasgr/F/main/copyvhd.ps1",
+    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
@@ -240,14 +240,14 @@
         {
           "name": "automationCredential",
           "type": "credentials",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "location": "[parameters('location')]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
           "properties": {
             "userName": "unusedUsername",
-            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2018-07-01').keys[0].value]",
+            "password": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName')), '2021-09-01').keys[0].value]",
             "description": "string"
           }
         },
@@ -273,7 +273,7 @@
         {
           "name": "[variables('psModules').azAccounts.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
@@ -287,7 +287,7 @@
         {
           "name": "[variables('psModules').azStorage.name]",
           "type": "Modules",
-          "apiVersion": "2015-10-31",
+          "apiVersion": "2020-01-13-preview",
           "tags": {},
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -329,7 +329,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('networkSecurityGroupName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -576,7 +576,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('publicIPAddress1name')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -585,7 +585,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('publicIPAddress2name')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -640,7 +640,7 @@
     {
       "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
@@ -680,7 +680,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('nic1name')]",
       "location": "[parameters('location')]",
       "dependsOn": [
@@ -708,7 +708,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-11-01",
       "name": "[parameters('nic2name')]",
       "location": "[parameters('location')]",
       "dependsOn": [

@@ -2,6 +2,23 @@
 
 sleep 10
 
+# Get all network metadata
+curl -H Metadata:true "http://169.254.169.254/metadata/instance/network?api-version=2017-04-02" | jq
+
+# Get public ip only
+curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2017-04-02" | jq
+
+# Get private ip only
+curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2019-06-01" | jq
+curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/privateIpAddress/?api-version=2019-06-01" | jq
+
+#unique VM id
+curl -H Metadata:true "http://169.254.169.254/metadata/instance/compute/vmId?api-version=2017-04-02" | jq
+
+Invoke-RestMethod -Headers @{"Metadata"="true"} -URI http://169.254.169.254/metadata/instance?api-version=2017-04-02 -Method get
+Invoke-RestMethod -Headers @{"Metadata"="true"} -URI http://169.254.169.254/metadata/instance/network?api-version=2017-04-02 -Method get
+
+
 echo "Initiating ZSOS configuration"
 echo "Create dependency file"
 sudo touch /sc/conf/sc.conf

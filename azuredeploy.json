@@ -168,7 +168,7 @@
     "publicIPAddressType": "Dynamic",
     "natGatewayName": "[concat(variables('virtualNetworkName'), '-NATGW')]",
     "sourceOSvhdURL": "https://zsprod.blob.core.windows.net/nss/znss_5_0_osdisk.vhd",
-    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/copyvhd.ps1",
+    "scriptUrl": "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/nss-%232-upgrade-to-2019-template/scripts/copyvhd.ps1",
     "vhdStorageAccountNamePrefix": "vhdstorage",
     "vhdStorageAccountName": "[toLower(concat(variables('vhdStorageAccountNamePrefix'), uniqueString(subscription().id, resourceGroup().id, deployment().name)))]",
     "vhdStorageAccountSKU": "Standard_LRS",
@@ -182,11 +182,11 @@
     "psModules": {
       "azAccounts": {
         "name": "Az.Accounts",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.accounts.2.5.1.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/blob/nss-%232-upgrade-to-2019-template/assets/az.accounts.2.5.1.nupkg"
       },
       "azStorage": {
         "name": "Az.Storage",
-        "url": "https://github.com/willguibr/nss-azure-deploy/raw/master/assets/az.storage.2.0.0.nupkg"
+        "url": "https://github.com/willguibr/nss-azure-deploy/blob/nss-%232-upgrade-to-2019-template/assets/az.storage.2.0.0.nupkg"
       }
     },
     "linuxConfiguration": {
@@ -811,7 +811,7 @@
         "settings": {
           "timestamp": 123456789,
           "fileUris": [
-            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znss-init.sh"
+            "https://raw.githubusercontent.com/willguibr/nss-azure-deploy/nss-%232-upgrade-to-2019-template/scripts/znss-init.sh"
           ]
         },
         "protectedSettings": {

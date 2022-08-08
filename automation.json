@@ -158,12 +158,6 @@
       "publicIPprefixName": {
           "type": "string",
           "defaultValue":"NATGW-PIP"
-      },
-      "dns_server1": {
-        "type": "string"
-      },
-      "dns_server2": {
-        "type": "string"
       }
     },
     "variables": {
@@ -202,7 +196,7 @@
       //"smnet_dev": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))).ipConfigurations[0].properties.privateIPAddress]",
       //"smnet_dflt_gw": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]"
     },
-    "resources": [ 
+    "resources": [
       {
         "condition": "[equals(parameters('vNetNewOrExisting'), 'new')]",
         "type": "Microsoft.Storage/storageAccounts",
@@ -671,7 +665,7 @@
         "dependsOn": [
           "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress2name'))]",
           "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('publicIPprefixName'))]"
-  
+
         ]
       },
       {
@@ -700,7 +694,7 @@
                 },
                 "natGateway":{
                   "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
-                } 
+                }
               }
             },
             {
@@ -713,7 +707,7 @@
             }
           ]
         }
-        
+
       },
       {
         "type": "Microsoft.Network/networkInterfaces",

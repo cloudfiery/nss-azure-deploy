@@ -2,18 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "newStorageAccount": {
-      "value": "existing"
-  },
-  "storageAccountType": {
-    "value":"Standard_LRS"
-  },
-  "storageAccountNewOrExisting" : {
-    "value" : "new"
-  },
-  "existingStorageAccountRG": {
-    "value" : ""
-  },
     "vmName": {
       "value": "GEN-UNIQUE-10"
     },
@@ -26,22 +14,7 @@
     "virtualNetworkName": {
       "value": "GET-PREREQ-virtualNetworkName"
     },
-    "natGatewayNeeded": {
-      "value": "no"
-    },
-    "smnet_dev": {
-      "value": ""
-    },
-    "smnet_dflt_gw": {
-      "value": ""
-    },
-    "adminUsername": {
-      "value": "GEN-UNIQUE"
-    },
-    "adminPasswordOrKey": {
-      "value": "GEN-SSH-PUB-KEY"
-    },
-    "sasToken": {
+    "SAS-Token": {
       "value": "GEN-UNIQUE-10"
     }
   }

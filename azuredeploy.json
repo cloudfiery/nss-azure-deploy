@@ -2,38 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "westus2",
-      "allowedValues": [
-        "australiacentral",
-        "australiaeast",
-        "australiasoutheast",
-        "brazilsouth",
-        "canadacentral",
-        "centralindia",
-        "eastasia",
-        "eastus",
-        "eastus2",
-        "francecentral",
-        "japaneast",
-        "koreacentral",
-        "northcentralus",
-        "northeurope",
-        "southcentralus",
-        "southeastasia",
-        "uksouth",
-        "westcentralus",
-        "westeurope",
-        "westus2"
-      ],
-      "metadata": {
-        "description": "Location for all resources to be deployed in."
-      }
-    },
     "SAS-Token": {
       "type": "string",
-      "defaultValue": "sv=2019-02-02&ss=b&srt=sco&sp=rl&se=2023-03-12T09:20:42Z&st=2020-03-12T00:20:42Z&spr=https&sig=p6OHCAv5Rxax9i1F%2BLaYBDmvUNI64VZGtDHcm9CsE0Y%3D",
+      "defaultValue": "",
       "metadata": {
         "description": "SAS Token for Zscaler's VHDs. Contact Zscaler Support to receive the token. Example of SAS token: sp=r&st=2019-05-07T03:18:56Z&se=2020-05-31T11:18:56Z&spr=https&sv=2018-03-28&sig=AmDuefmdf7lNjrF0aOdUenpuwmo4F5uq7X2oFFtHTzg%3D&sr=b"
       }
@@ -116,7 +87,7 @@
         "description": "Name of the Virtual Machine (VM)"
       }
     },
-    "vmSize": {
+    "virtualMachineSize": {
       "type": "string",
       "defaultValue": "Standard_E4-2s_v3",
       "metadata": {
@@ -205,7 +176,7 @@
       "condition": "[equals(parameters('stgNewOrExisting'), 'new')]",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('vhdStorageAccountName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "apiVersion": "2021-09-01",
       "sku": {
         "name": "[variables('vhdStorageAccountSKU')]"
@@ -227,7 +198,7 @@
       "name": "[variables('automationAccountName')]",
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2021-06-22",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('vhdStorageAccountName'))]"
       ],
@@ -241,7 +212,7 @@
           "name": "automationCredential",
           "type": "credentials",
           "apiVersion": "2020-01-13-preview",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -255,7 +226,7 @@
           "name": "[variables('runbookName')]",
           "type": "runbooks",
           "apiVersion": "2019-06-01",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
           ],
@@ -303,7 +274,7 @@
           "name": "[variables('guid1')]",
           "type": "jobs",
           "apiVersion": "2019-06-01",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "dependsOn": [
             "[concat('Microsoft.Storage/storageAccounts/', variables('vhdStorageAccountName'))]",
             "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
@@ -331,7 +302,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-11-01",
       "name": "[parameters('networkSecurityGroupName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "securityRules": [
           {
@@ -578,7 +549,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-11-01",
       "name": "[parameters('publicIPAddress1name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
       }
@@ -587,7 +558,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-11-01",
       "name": "[parameters('publicIPAddress2name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('SKU')]"
       },
@@ -600,7 +571,7 @@
       "type": "Microsoft.Network/publicIPPrefixes",
       "apiVersion": "2020-11-01",
       "name": "[parameters('publicIPprefixName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('SKU')]"
       },
@@ -614,7 +585,7 @@
       "type": "Microsoft.Network/natGateways",
       "apiVersion": "2020-11-01",
       "name": "[parameters('natgatewayname')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('SKU')]"
       },
@@ -642,7 +613,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-11-01",
       "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
         "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
@@ -682,7 +653,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-11-01",
       "name": "[parameters('nic1name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddress1name'))]",
         "[parameters('virtualNetworkName')]"
@@ -710,7 +681,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-11-01",
       "name": "[parameters('nic2name')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[parameters('virtualNetworkName')]"
       ],
@@ -735,7 +706,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2021-11-01",
       "name": "[parameters('vmName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic1name'))]",
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('nic2name'))]",
@@ -743,7 +714,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+          "vmSize": "[parameters('virtualMachineSize')]"
         },
         "storageProfile": {
           "osDisk": {

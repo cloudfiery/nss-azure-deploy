@@ -14,7 +14,7 @@ if ($RGexistOrNew -eq $false)
 {
     # ResourceGroup doesn't exist
     # Create RG First
-    echo 'RG does not  exit createing one ....'
+    echo 'RG does not exit creating one ....'
     az group create --location canadacentral --name $myResourceGroupName
     echo 'RG Created, Deploying...'
     az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json

@@ -2,21 +2,8 @@
 
 sleep 10
 
-# Get all network metadata
-curl -H Metadata:true "http://169.254.169.254/metadata/instance/network?api-version=2017-04-02" | jq
-
-# Get public ip only
-curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2017-04-02" | jq
-
-# Get private ip only
-curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2019-06-01" | jq
-curl -H Metadata:true "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/privateIpAddress/?api-version=2019-06-01" | jq
-
-#unique VM id
-curl -H Metadata:true "http://169.254.169.254/metadata/instance/compute/vmId?api-version=2017-04-02" | jq
-
-Invoke-RestMethod -Headers @{"Metadata"="true"} -URI http://169.254.169.254/metadata/instance?api-version=2017-04-02 -Method get
-Invoke-RestMethod -Headers @{"Metadata"="true"} -URI http://169.254.169.254/metadata/instance/network?api-version=2017-04-02 -Method get
+# Adjust NTP Server
+(crontab -l 2>/dev/null; echo -e "PATH=/sbin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/games:/sc/update:/home/zsroot/bin:/sc/update \n*/10 * * * * ntpdate 169.254.169.123") | crontab -
 
 
 echo "Initiating ZSOS configuration"
@@ -34,12 +21,15 @@ fi
 echo "Installing Certificate"
 sudo nss install-cert NssCertificate.zip
 
+# Get private ip and subnet mask for Service Interface
+SMNET_IP=$(curl -H Metadata:true --noproxy "*" --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/ipAddress/0/privateIpAddress?api-version=2021-12-13&format=text")
+SMNET_MASK=$(curl -H Metadata:true --noproxy "*" --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/subnet/0/prefix?api-version=2021-12-13&format=text")
+
 # NSS Service Interface and Default Gateway IP Configuration
-# Parameters passed by user input via ARM Template
 echo "Set IP Service Interface IP Address and Default Gateway"
-smnet_dev=${SMNET_IPMASK}
+# SMNET_GW=192.168.100.1
 smnet_dflt_gw=${SMNET_GW}
-sudo nss configure --cliinput ${SMNET_IPMASK},${SMNET_GW}
+sudo nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${SMNET_GW}
 echo "Successfully Applied Changes"
 
 # Updading FreeBSD.conf Packages
@@ -51,7 +41,7 @@ sudo pkg update && pkg check -d -y
 sudo mkdir /sc/build/24pkg-update
 
 # Download NSS Binaries
-sudo nss force-update-now
+sudo nss update-now
 echo "Connecting to server..."
 echo "Downloading latest version" # Wait until system echo back the next message
 echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back the next message
@@ -78,9 +68,5 @@ sudo nss test-firewall > nss_dump_config/nss_test_firewall.log
 sudo nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
 /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
 cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log
-
-# Upload NSS Dump Config to S3 Bucket
-aws s3 nss_dump_config s3://example-38818791f97e2ed9/content/ --recursive
-echo "Upload Successfully Complete"
 
 exit 0

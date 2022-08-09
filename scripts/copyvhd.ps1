@@ -1,5 +1,4 @@
 ﻿ param(
-
         [Parameter(Mandatory=$true)]
         [string] 
         $newStorageAccountName,
@@ -19,7 +18,6 @@
         [Parameter(Mandatory=$true)]
         [string] 
         $sasToken
-
 )
 
 $myCredential = Get-AutomationPSCredential -Name 'automationCredential'

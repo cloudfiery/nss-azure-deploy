@@ -9,11 +9,12 @@ $Certurl = 'https://github.com/willguibr/nss-azure-deploy/raw/nss-%232-upgrade-t
 # getting Default Gateway From User
 $smnet_dflt_gw  = Read-Host -Prompt 'Input your Default Gateway'
 
+
 $RGexistOrNew = az group exists -n $myResourceGroupName
 if ($RGexistOrNew -eq $false)
 {
-    # ResourceGroup doesn't exist
-    # Create RG First
+     #ResourceGroup doesn't exist
+     #Create RG First
     echo 'RG does not exit creating one ....'
     az group create --location canadacentral --name $myResourceGroupName
     echo 'RG Created, Deploying...'

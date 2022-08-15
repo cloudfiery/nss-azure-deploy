@@ -21,8 +21,8 @@ $User = "zsroot"
 $Password = "zsroot"
 $secpasswd = ConvertTo-SecureString $Password -AsPlainText -Force
 $Credentials = New-Object System.Management.Automation.PSCredential($User, $secpasswd)
-$ComputerName = az network public-ip show -g $RG -n $IPName --query "ipAddress"
-#$ComputerName = "20.116.57.141"
+#$ComputerName = az network public-ip show -g $RG -n $IPName --query "ipAddress"
+$ComputerName = "13.71.189.104"
 
 #copoy command
 $copycommand = "fetch $scripturl;fetch $Certurl"

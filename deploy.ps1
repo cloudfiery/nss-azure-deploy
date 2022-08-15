@@ -10,23 +10,23 @@ $Certurl = 'https://github.com/willguibr/nss-azure-deploy/raw/nss-%232-upgrade-t
 $smnet_dflt_gw  = Read-Host -Prompt 'Input your Default Gateway'
 
 
-$RGexistOrNew = az group exists -n $myResourceGroupName
-if ($RGexistOrNew -eq $false)
-{
+#$RGexistOrNew = az group exists -n $myResourceGroupName
+#if ($RGexistOrNew -eq $false)
+#{
      #ResourceGroup doesn't exist
      #Create RG First
-    echo 'RG does not exit creating one ....'
-    az group create --location canadacentral --name $myResourceGroupName
-    echo 'RG Created, Deploying...'
-    az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
+    #echo 'RG does not exit creating one ....'
+    #az group create --location canadacentral --name $myResourceGroupName
+    #echo 'RG Created, Deploying...'
+    #az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
 
-}
-else
-{
+#}
+#else
+#{
     # ResourceGroup exist
-    echo 'RG exist, Deploying...'
-    az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
-}
+    #echo 'RG exist, Deploying...'
+    #az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
+#}
 Start-Sleep 15
 
 # Copying Shell Script To Virtual Machine

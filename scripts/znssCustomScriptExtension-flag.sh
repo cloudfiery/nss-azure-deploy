@@ -37,8 +37,8 @@ SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/ins
 
 # NSS Service Interface and Default Gateway IP Configuration
 echo "Set IP Service Interface IP Address and Default Gateway"
-# SMNET_GW=192.168.100.1
-sudo nss configure --cliinput $SMNET_IP"/"$SMNET_MASK,${smnet_dflt_gw}
+smnet_dflt_gw=$smnet_dflt_gw
+sudo nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
 echo "Successfully Applied Changes"
 
 # Updading FreeBSD.conf Packages

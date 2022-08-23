@@ -30,7 +30,7 @@ if ! [ -f "NssCertificate.zip" ]; then
 fi
 
 echo "Installing Certificate"
-nss install-cert NssCertificate.zip
+sudo nss install-cert NssCertificate.zip
 # Get private ip and subnet mask for Service Interface
 SMNET_IP=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/ipAddress/0/privateIpAddress?api-version=2021-12-13&format=text")
 SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/subnet/0/prefix?api-version=2021-12-13&format=text")
@@ -38,7 +38,7 @@ SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/ins
 # NSS Service Interface and Default Gateway IP Configuration
 echo "Set IP Service Interface IP Address and Default Gateway"
 smnet_dflt_gw=$smnet_dflt_gw
-nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
+sudo nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
 
 
 # Updading FreeBSD.conf Packages
@@ -50,32 +50,32 @@ pkg update && pkg check -d -y
 mkdir /sc/build/24pkg-update
 
 # Download NSS Binaries
-nss update-now
+sudo nss update-now
 echo "Connecting to server..."
 echo "Downloading latest version" # Wait until system echo back the next message
 echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back the next message
 echo "Finished installation!"
 
  #Check NSS Version
-nss checkversion
+sudo nss checkversion
 
 # Start NSS Service
-nss start
+sudo nss start
 echo "NSS service running."
 
 # Enable the NSS to start automatically
-nss enable-autostart
+sudo nss enable-autostart
 echo "Auto-start of NSS enabled "
 
 # Dump all Important Configuration
-mkdir nss_dump_config
-netstat -r > nss_dump_config/nss_netstat.log
-nss dump-config > nss_dump_config/nss_dump_config.log
-nss checkversion > nss_dump_config/nss_checkversion.log
-nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
-nss test-firewall > nss_dump_config/nss_test_firewall.log
-nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
-/sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
+sudo mkdir nss_dump_config
+sudo etstat -r > nss_dump_config/nss_netstat.log
+sudo nss dump-config > nss_dump_config/nss_dump_config.log
+sudo nss checkversion > nss_dump_config/nss_checkversion.log
+sudo nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
+sudo nss test-firewall > nss_dump_config/nss_test_firewall.log
+sudo nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
+sudo /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
 cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log
 
 exit 0

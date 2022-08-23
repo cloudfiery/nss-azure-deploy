@@ -69,7 +69,7 @@ echo "Auto-start of NSS enabled "
 
 # Dump all Important Configuration
 sudo mkdir nss_dump_config
-sudo etstat -r > nss_dump_config/nss_netstat.log
+sudo netstat -r > nss_dump_config/nss_netstat.log
 sudo nss dump-config > nss_dump_config/nss_dump_config.log
 sudo nss checkversion > nss_dump_config/nss_checkversion.log
 sudo nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log

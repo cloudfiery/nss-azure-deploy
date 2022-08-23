@@ -1,4 +1,5 @@
 #!/bin/sh -e
+PATH=/bin:/usr/bin:/usr/local/bin 
 
 while getopts g: flag
 do

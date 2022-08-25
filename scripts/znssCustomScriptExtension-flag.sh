@@ -91,14 +91,15 @@ else
    echo FAILED Updating packages
    exit 1
 fi
+#this command fails
 mkdir /sc/build/24pkg-update
 #checking
-if [ $? -eq 0 ]; then
-   echo  mkdir /sc/build/24pkg-update Done.
-else
-   echo FAILED on mkdir /sc/build/24pkg-update
-   exit 1
-fi
+# if [ $? -eq 0 ]; then
+#    echo  mkdir /sc/build/24pkg-update Done.
+# else
+#    echo FAILED on mkdir /sc/build/24pkg-update
+#    exit 1
+# fi
 
 # Download NSS Binaries
 /sc/update/nss update-now

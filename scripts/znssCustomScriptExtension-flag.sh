@@ -56,24 +56,24 @@ echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back 
 echo "Finished installation!"
 
  #Check NSS Version
-sudo nss checkversion
+sudo /sc/update/nss checkversion
 
 # Start NSS Service
-sudo nss start
+sudo /sc/update/nss start
 echo "NSS service running."
 
 # Enable the NSS to start automatically
-sudo nss enable-autostart
+sudo /sc/update/nss enable-autostart
 echo "Auto-start of NSS enabled "
 
 # Dump all Important Configuration
 sudo mkdir nss_dump_config
 sudo netstat -r > nss_dump_config/nss_netstat.log
-sudo nss dump-config > nss_dump_config/nss_dump_config.log
-sudo nss checkversion > nss_dump_config/nss_checkversion.log
-sudo nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
-sudo nss test-firewall > nss_dump_config/nss_test_firewall.log
-sudo nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
+sudo /sc/update/nss dump-config > nss_dump_config/nss_dump_config.log
+sudo /sc/update/nss checkversion > nss_dump_config/nss_checkversion.log
+sudo /sc/update/nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
+sudo /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
+sudo /sc/update/nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
 sudo /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
 cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log
 

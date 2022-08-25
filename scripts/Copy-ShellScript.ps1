@@ -13,31 +13,18 @@ param(
     $Certurl,
     [Parameter(Mandatory=$true)]
     [string]
-    $smnet_dflt_gw
+    $smnet_dflt_gw,
+    [Parameter(Mandatory=$true)]
+    [string]
+    $user,
+    [Parameter(Mandatory=$true)]
+    [string]
+    $pwd
 
 )
-#ssh Parameters
-$User = "zsroot"
-$Password = "zsroot"
-$secpasswd = ConvertTo-SecureString $Password -AsPlainText -Force
-$Credentials = New-Object System.Management.Automation.PSCredential($User, $secpasswd)
-#$ComputerName = az network public-ip show -g $RG -n $IPName --query "ipAddress"
-$ComputerName = "13.71.189.104"
-
-#copoy command
-$copycommand = "fetch $scripturl;fetch $Certurl"
-
-#copy script and certificate
-echo "Loggin to  : $ComputerName As : $User"
-$SessionID = New-SSHSession -ComputerName $ComputerName.trim('"') -AcceptKey -Credential $Credentials
-echo 'Copying Shell Script and NSS Certificate ...'
-$Query = $(Invoke-SshCommand -SSHSession $SessionID  -Command $copycommand).Output
-echo 'Script and Certificate Copied, Executing Script'
-
-#Execute Script 
-$ExShellScript = "sh znssCustomScriptExtension-flag.sh -g $smnet_dflt_gw"
-echo $ExShellScript
-$Query2 = $(Invoke-SshCommand -SSHSession $SessionID  -Command $ExShellScript).Output
-$Query2 = $Query2.split("`n")
-echo $Query2
-Remove-SSHSession -Name $SessionID | Out-Null
+$ComputerName = az network public-ip show -g $RG -n $IPName --query "ipAddress"
+$secpasswd = ConvertTo-SecureString $pwd -AsPlainText -Force
+Write-Output "Loggin to  : $ComputerName As : $user"
+$npwd  = '"'+$pwd+'"'
+echo y | C:\Users\octoadmin\Downloads\plink.exe   $user@$ComputerName -pw $pwd  "fetch $scripturl;fetch $Certurl"
+echo y | C:\Users\octoadmin\Downloads\plink.exe  -ssh $user@$ComputerName -pw $pwd  -t "echo $npwd | sudo -S sh znssCustomScriptExtension-flag.sh -g $smnet_dflt_gw"

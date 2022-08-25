@@ -30,4 +30,4 @@ else
 Start-Sleep 60
 
 # Copying Shell Script To Virtual Machine
-& '.\scripts\Copy-ShellScript.ps1' $IPName $myResourceGroupName $scripturl $Certurl $smnet_dflt_gw
+& '.\scripts\Copy-ShellScript.ps1' $IPName $myResourceGroupName $scripturl $Certurl $smnet_dflt_gw $user $Password

@@ -15,7 +15,7 @@ echo "default gateway value is : $smnet_dflt_gw"
 
 sleep 10
 echo $pwd
-$pwd = \"${pwd}\"
+pwd = \"${pwd}\"
 echo $pwd
 echo "Initiating ZSOS configuration"
 echo "Create dependency file"

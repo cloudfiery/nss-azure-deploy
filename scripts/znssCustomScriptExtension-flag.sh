@@ -18,7 +18,13 @@ sleep 10
 echo "Initiating ZSOS configuration"
 echo "Create dependency file"
 sudo touch /sc/conf/sc.conf
-
+#checking
+if [ $? -eq 0 ]; then
+   echo dependency file created.
+else
+   echo FAIL
+   exit 1
+fi
 
 # Install NSS Certificate
 if ! [ -f "NssCertificate.zip" ]; then
@@ -29,7 +35,14 @@ if ! [ -f "NssCertificate.zip" ]; then
 fi
 
 echo "Installing Certificate"
-sudo nss install-cert NssCertificate.zip
+sudo /sc/update/nss install-cert NssCertificate.zip
+#checking
+if [ $? -eq 0 ]; then
+   echo certificate installed.
+else
+   echo FAIL
+   exit 1
+fi
 # Get private ip and subnet mask for Service Interface
 SMNET_IP=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/ipAddress/0/privateIpAddress?api-version=2021-12-13&format=text")
 SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/instance/network/interface/1/ipv4/subnet/0/prefix?api-version=2021-12-13&format=text")
@@ -37,35 +50,95 @@ SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/ins
 # NSS Service Interface and Default Gateway IP Configuration
 echo "Set IP Service Interface IP Address and Default Gateway"
 smnet_dflt_gw=$smnet_dflt_gw
-sudo nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
-
+sudo /sc/update/nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
+#checking
+if [ $? -eq 0 ]; then
+   echo Set IP Service Done.
+else
+   echo FAIL
+   exit 1
+fi
 
 # Updading FreeBSD.conf Packages
 echo "Updading FreeBSD.conf Packages"
 mkdir -p /usr/local/etc/pkg/repos
+#checking
+if [ $? -eq 0 ]; then
+   echo  Done.
+else
+   echo FAIL
+   exit 1
+fi
 echo "FreeBSD: { enabled: no }" > /usr/local/etc/pkg/repos/FreeBSD.conf
+#checking
+if [ $? -eq 0 ]; then
+   echo  Done.
+else
+   echo FAIL
+   exit 1
+fi
 echo "FreeBSD: { url: "http://13.66.198.11/FreeBSD:11:amd64/latest/", enabled: yes}" > /usr/local/etc/pkg/repos/FreeBSD.conf
+#checking
+if [ $? -eq 0 ]; then
+   echo  Done.
+else
+   echo FAIL
+   exit 1
+fi
 pkg update && pkg check -d -y
+#checking
+if [ $? -eq 0 ]; then
+   echo  Update Done.
+else
+   echo FAIL
+   exit 1
+fi
 mkdir /sc/build/24pkg-update
+#checking
+if [ $? -eq 0 ]; then
+   echo  mkdir /sc/build/24pkg-update Done.
+else
+   echo FAIL
+   exit 1
+fi
 
 # Download NSS Binaries
-sudo nss update-now
-echo "Connecting to server..."
-echo "Downloading latest version" # Wait until system echo back the next message
-echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back the next message
-echo "Finished installation!"
+sudo /sc/update/nss update-now
+#checking
+if [ $? -eq 0 ]; then
+    echo "Connecting to server..."
+    echo "Downloading latest version" # Wait until system echo back the next message
+    echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back the next message
+    echo "Finished installation!"
+else
+   echo FAIL
+   exit 1
+fi
+
 
  #Check NSS Version
 sudo /sc/update/nss checkversion
 
 # Start NSS Service
 sudo /sc/update/nss start
-echo "NSS service running."
+#checking
+if [ $? -eq 0 ]; then
+   echo  NSS service running.
+else
+   echo FAIL
+   exit 1
+fi
+
 
 # Enable the NSS to start automatically
 sudo /sc/update/nss enable-autostart
-echo "Auto-start of NSS enabled "
-
+#checking
+if [ $? -eq 0 ]; then
+   echo "Auto-start of NSS enabled "
+else
+   echo FAIL
+   exit 1
+fi
 # Dump all Important Configuration
 sudo mkdir nss_dump_config
 sudo netstat -r > nss_dump_config/nss_netstat.log

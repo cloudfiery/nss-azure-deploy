@@ -13,9 +13,7 @@ done
 
 echo "default gateway value is : $smnet_dflt_gw"
 
-$PATH = /sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/home/zsroot/bin:/sc/update
 sleep 10
-echo $PATH
 
 echo "Initiating ZSOS configuration"
 echo "Create dependency file"

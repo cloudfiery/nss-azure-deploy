@@ -1,12 +1,11 @@
 #!/bin/sh -e
 
-while getopts g:p: flag
+while getopts g: flag
 do
 
     case "${flag}" in
 
         g) smnet_dflt_gw=${OPTARG};;
-        p) pwd=${OPTARG};;
         ?) echo "script usage: [-g] the default gateway value";exit 1;;
     esac
 done
@@ -14,10 +13,9 @@ done
 echo "default gateway value is : $smnet_dflt_gw"
 
 sleep 10
-echo "\"$pwd\""
 echo "Initiating ZSOS configuration"
 echo "Create dependency file"
-echo "\"$pwd\"" | sudo -S touch /sc/conf/sc.conf
+sudo -S touch /sc/conf/sc.conf
 #checking
 if [ $? -eq 0 ]; then
    echo dependency file created.
@@ -35,7 +33,7 @@ if ! [ -f "NssCertificate.zip" ]; then
 fi
 
 echo "Installing Certificate"
-echo  "\"$pwd\"" | sudo -S  /sc/update/nss install-cert NssCertificate.zip
+sudo -S  /sc/update/nss install-cert NssCertificate.zip
 #checking
 if [ $? -eq 0 ]; then
    echo certificate installed.
@@ -50,7 +48,7 @@ SMNET_MASK=$(curl -H Metadata:true --silent "http://169.254.169.254/metadata/ins
 # NSS Service Interface and Default Gateway IP Configuration
 echo "Set IP Service Interface IP Address and Default Gateway"
 smnet_dflt_gw=$smnet_dflt_gw
-echo  "\"$pwd\"" | sudo -S /sc/update/nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
+sudo -S /sc/update/nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dflt_gw}
 #checking
 if [ $? -eq 0 ]; then
    echo Set IP Service Done.
@@ -61,7 +59,7 @@ fi
 
 # Updading FreeBSD.conf Packages
 echo "Updading FreeBSD.conf Packages"
-echo  "\"$pwd\"" | sudo -S mkdir -p /usr/local/etc/pkg/repos
+sudo -S mkdir -p /usr/local/etc/pkg/repos
 #checking
 if [ $? -eq 0 ]; then
    echo  /usr/local/etc/pkg/repos Created.
@@ -85,7 +83,7 @@ else
    echo FAILED setting FreeBSD URL
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S pkg update && pkg check -d -y
+sudo -S pkg update && pkg check -d -y
 #checking
 if [ $? -eq 0 ]; then
    echo  Update Done.
@@ -93,7 +91,7 @@ else
    echo FAILED Updating packages
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S mkdir /sc/build/24pkg-update
+sudo -S mkdir /sc/build/24pkg-update
 #checking
 if [ $? -eq 0 ]; then
    echo  mkdir /sc/build/24pkg-update Done.
@@ -103,7 +101,7 @@ else
 fi
 
 # Download NSS Binaries
-echo  "\"$pwd\"" | sudo -S  /sc/update/nss update-now
+sudo -S  /sc/update/nss update-now
 #checking
 if [ $? -eq 0 ]; then
     echo "Connecting to server..."
@@ -117,7 +115,7 @@ fi
 
 
  #Check NSS Version
-echo  "\"$pwd\"" | sudo -S /sc/update/nss checkversion
+sudo -S /sc/update/nss checkversion
 if [ $? -eq 0 ]; then
    echo  version Chcked.
 else
@@ -125,7 +123,7 @@ else
    exit 1
 fi
 # Start NSS Service
-echo  "\"$pwd\"" | sudo -S /sc/update/nss start
+sudo -S /sc/update/nss start
 #checking
 if [ $? -eq 0 ]; then
    echo  NSS service running.
@@ -136,7 +134,7 @@ fi
 
 
 # Enable the NSS to start automatically
-echo  "\"$pwd\"" | sudo -S /sc/update/nss enable-autostart
+sudo -S /sc/update/nss enable-autostart
 #checking
 if [ $? -eq 0 ]; then
    echo "Auto-start of NSS enabled "
@@ -153,7 +151,7 @@ else
    echo FAILED mkdir nss_dump_config
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S netstat -r > nss_dump_config/nss_netstat.log
+sudo -S netstat -r > nss_dump_config/nss_netstat.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done netstat -r > nss_dump_config/nss_netstat.log
@@ -161,7 +159,7 @@ else
    echo FAILED netstat -r > nss_dump_config/nss_netstat.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/update/nss dump-config > nss_dump_config/nss_dump_config.log
+sudo -S /sc/update/nss dump-config > nss_dump_config/nss_dump_config.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/update/nss dump-config > nss_dump_config/nss_dump_config.log
@@ -169,7 +167,7 @@ else
    echo FAILED /sc/update/nss dump-config > nss_dump_config/nss_dump_config.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/update/nss checkversion > nss_dump_config/nss_checkversion.log
+sudo -S /sc/update/nss checkversion > nss_dump_config/nss_checkversion.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/update/nss checkversion > nss_dump_config/nss_checkversion.log
@@ -177,7 +175,7 @@ else
    echo FAILED /sc/update/nss checkversion > nss_dump_config/nss_checkversion.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/update/nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
+sudo -S /sc/update/nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/update/nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
@@ -185,7 +183,7 @@ else
    echo FAILED /sc/update/nss troubleshoot netstat|grep tcp > nss_dump_config/nss_netstat_grep_tcp.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
+sudo -S /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
@@ -193,7 +191,7 @@ else
    echo FAILED /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/update/nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
+sudo -S /sc/update/nss troubleshoot netstat > nss_dump_config/nss_troubleshoot_netstat.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
@@ -201,7 +199,7 @@ else
    echo FAILED /sc/update/nss test-firewall > nss_dump_config/nss_test_firewall.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
+sudo -S /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
@@ -209,7 +207,7 @@ else
    echo FAILED /sc/bin/smmgr -ys smnet=ifconfig > nss_dump_config/nss_smnet_ifconfig.log
    exit 1
 fi
-echo  "\"$pwd\"" | sudo -S cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log
+sudo -S cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log
 #checking
 if [ $? -eq 0 ]; then
    echo Done : cat /sc/conf/sc.conf | egrep "smnet_dev|smnet_dflt_gw" > nss_dump_config/nss_dump_config.log

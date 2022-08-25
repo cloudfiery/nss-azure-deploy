@@ -40,7 +40,7 @@ sudo /sc/update/nss install-cert NssCertificate.zip
 if [ $? -eq 0 ]; then
    echo certificate installed.
 else
-   echo FAIL
+   echo FAIL installing certificates 
    exit 1
 fi
 # Get private ip and subnet mask for Service Interface
@@ -55,7 +55,7 @@ sudo /sc/update/nss configure --cliinput ${SMNET_IP}"/"${SMNET_MASK},${smnet_dfl
 if [ $? -eq 0 ]; then
    echo Set IP Service Done.
 else
-   echo FAIL
+   echo FAIL setting ip services
    exit 1
 fi
 
@@ -64,25 +64,25 @@ echo "Updading FreeBSD.conf Packages"
 mkdir -p /usr/local/etc/pkg/repos
 #checking
 if [ $? -eq 0 ]; then
-   echo  Done.
+   echo  /usr/local/etc/pkg/repos Created.
 else
-   echo FAIL
+   echo FAILED creating /usr/local/etc/pkg/repos
    exit 1
 fi
 echo "FreeBSD: { enabled: no }" > /usr/local/etc/pkg/repos/FreeBSD.conf
 #checking
 if [ $? -eq 0 ]; then
-   echo  Done.
+   echo  FreeBSD enabled: no Done.
 else
-   echo FAIL
+   echo FAILED Disabling freeBSD
    exit 1
 fi
 echo "FreeBSD: { url: "http://13.66.198.11/FreeBSD:11:amd64/latest/", enabled: yes}" > /usr/local/etc/pkg/repos/FreeBSD.conf
 #checking
 if [ $? -eq 0 ]; then
-   echo  Done.
+   echo  Done setting FreeBSD URL .
 else
-   echo FAIL
+   echo FAILED setting FreeBSD URL
    exit 1
 fi
 pkg update && pkg check -d -y
@@ -90,7 +90,7 @@ pkg update && pkg check -d -y
 if [ $? -eq 0 ]; then
    echo  Update Done.
 else
-   echo FAIL
+   echo FAILED Updating packages
    exit 1
 fi
 mkdir /sc/build/24pkg-update
@@ -98,7 +98,7 @@ mkdir /sc/build/24pkg-update
 if [ $? -eq 0 ]; then
    echo  mkdir /sc/build/24pkg-update Done.
 else
-   echo FAIL
+   echo FAILED on mkdir /sc/build/24pkg-update
    exit 1
 fi
 
@@ -111,21 +111,26 @@ if [ $? -eq 0 ]; then
     echo "Installing build /sc/smcdsc/nss_upgrade.sh" # Wait until system echo back the next message
     echo "Finished installation!"
 else
-   echo FAIL
+   echo FAILED Updating NSS
    exit 1
 fi
 
 
  #Check NSS Version
 sudo /sc/update/nss checkversion
-
+if [ $? -eq 0 ]; then
+   echo  version Chcked.
+else
+   echo FAILED checking version
+   exit 1
+fi
 # Start NSS Service
 sudo /sc/update/nss start
 #checking
 if [ $? -eq 0 ]; then
    echo  NSS service running.
 else
-   echo FAIL
+   echo FAILED Starting NSS Services
    exit 1
 fi
 
@@ -136,7 +141,7 @@ sudo /sc/update/nss enable-autostart
 if [ $? -eq 0 ]; then
    echo "Auto-start of NSS enabled "
 else
-   echo FAIL
+   echo FAILED Auto Starting NSS
    exit 1
 fi
 # Dump all Important Configuration

@@ -1,6 +1,8 @@
+.DS_Store
 requirements/
 requirements/*
 requirements/requirement.txt
 local_test/
 local_test/*
+assets/NssCertificate.zip
 NssCertificate.zip

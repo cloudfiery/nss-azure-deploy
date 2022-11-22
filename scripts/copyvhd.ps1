@@ -1,40 +1,40 @@
 ﻿param(
     [Parameter(Mandatory=$true)]
-    [string] 
+    [string]
     $NEWSTORAGEACCOUNTNAME,
 
     [Parameter(Mandatory=$true)]
-    [string] 
+    [string]
     $NEWSTORAGEACCOUNTCONTAINERNAME,
 
     [Parameter(Mandatory=$true)]
-    [string] 
+    [string]
     $DESTVHDNAME,
 
     [Parameter(Mandatory=$true)]
-    [string] 
+    [string]
     $VHDURL,
 
     [Parameter(Mandatory=$true)]
-    [string] 
+    [string]
     $SASTOKEN,
     [Parameter(Mandatory=$true)]
-    [string] 
-    $STORAGEACCOUNTKEY	
+    [string]
+    $STORAGEACCOUNTKEY
 
 )
 
     # Credentials
     $myCredential = Get-AutomationPSCredential -Name 'automationCredential'
     $userName = $myCredential.UserName
-$securePassword = $myCredential.Password        
+$securePassword = $myCredential.Password
 $destContext = New-AzStorageContext -StorageAccountName $NEWSTORAGEACCOUNTNAME -StorageAccountKey $StorageAccountKey
 $sasVHDurl=$VHDURL+'?'+$SASTOKEN
 
-            
+
     echo 'start the copy'
 Start-AzStorageBlobCopy  -AbsoluteUri $sasVHDurl -DestContainer $NEWSTORAGEACCOUNTCONTAINERNAME -DestBlob $DESTVHDNAME -DestContext $destContext -Force
-echo 'start chekcing '
+echo 'start checking '
 $vhdCopyStatus=Get-AzStorageBlobCopyState -Context $destContext -Blob $DESTVHDNAME -Container $NEWSTORAGEACCOUNTCONTAINERNAME
 While($vhdCopyStatus.Status -ne "Success") {
         if($vhdCopyStatus.Status -ne "Pending") {

@@ -1,4 +1,4 @@
-$myResourceGroupName = 'znssrg_xefzse4ahex4y'
+$myResourceGroupName = 'RG-Canada'
 $IPName = 'Zscaler-NSS-MGMT-IP'
 $RGexistOrNew = az group exists -n $myResourceGroupName
 if ($RGexistOrNew -eq $false)
@@ -8,14 +8,14 @@ if ($RGexistOrNew -eq $false)
     echo 'RG does not  exit createing one ....'
     az group create --location canadacentral --name $myResourceGroupName
     echo 'RG Created, Deploying...'
-    az deployment group create --resource-group znssrg_xefzse4ahex4y --template-file ./azuredeploy.json
+    az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
 
 }
 else
 {
     # ResourceGroup exist
     echo 'RG exist, Deploying...'
-    az deployment group create --resource-group znssrg_xefzse4ahex4y --template-file ./azuredeploy.json
+    az deployment group create --resource-group RG-Canada --template-file ./azuredeploy.json
 }
 
 # Copying Shell Script To Virtual Machine

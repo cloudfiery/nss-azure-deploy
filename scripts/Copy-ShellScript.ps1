@@ -8,7 +8,7 @@ param(
 )
 $User = "zsroot"
 $Password = "zsroot"
-$scripturl = 'https://raw.githubusercontent.com/willguibr/nss-azure-deploy/master/scripts/znssCustomScriptExtension-old.sh'
+$scripturl = 'https://raw.githubusercontent.com/willguibr/nss-azure-deploy/nss-%232-upgrade-to-2019-template/scripts/znssCustomScriptExtension.sh'
 $Command = "fetch $scripturl"
 $secpasswd = ConvertTo-SecureString $Password -AsPlainText -Force
 $Credentials = New-Object System.Management.Automation.PSCredential($User, $secpasswd)
@@ -28,7 +28,7 @@ while ($confirm -ne 'y' -And $confirm -ne 'n' -And $confirm -ne '') {
 if ( $confirm -eq 'y' )
 {
     $NEW_NAME_SERVER_IP = Read-Host -Prompt '1st Name Server IP '
-    $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP ; NEW_NAME_SERVER_IP=$NEW_NAME_SERVER_IP /'"+' znssCustomScriptExtension-old.sh'
+    $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP ; NEW_NAME_SERVER_IP=$NEW_NAME_SERVER_IP ; NEW_NAME_SERVER_IP2=$NEW_NAME_SERVER_IP2 /'"+' znssCustomScriptExtension.sh'
     $confirm2 = Read-Host -Prompt 'do you want to configure a 2nd name servers ? [y]yes;[n]no; default [n]'
     while ($confirm2 -ne 'y' -And $confirm2 -ne 'n' -And $confirm2 -ne '') {
         $confirm2 = Read-Host -Prompt 'Please enter a valid answer [y]yes;[n]no ;enter [n]'
@@ -37,12 +37,12 @@ if ( $confirm -eq 'y' )
     if ($confirm2 -eq 'y')
     {
         $NEW_NAME_SERVER_IP2 = Read-Host -Prompt '2nd Name Server IP'
-        $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP ; NEW_NAME_SERVER_IP=$NEW_NAME_SERVER_IP ; NEW_NAME_SERVER_IP2=$NEW_NAME_SERVER_IP2 /'"+' znssCustomScriptExtension-old.sh'
+        $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP ; NEW_NAME_SERVER_IP=$NEW_NAME_SERVER_IP ; NEW_NAME_SERVER_IP2=$NEW_NAME_SERVER_IP2 /'"+' znssCustomScriptExtension.sh'
     }
 }
 else
 {
-    $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP /'"+' script.sh'
+    $Command2 = 'sed -i -e '+"'2s/^/MY_IP=$MY_IP /'"+' znssCustomScriptExtension.sh'
 }
 echo $Command2
 $Query2 = (Invoke-SshCommand -SSHSession $SessionID  -Command $Command2).Output

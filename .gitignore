@@ -3,3 +3,4 @@ requirements/*
 requirements/requirement.txt
 local_test/
 local_test/*
+NssCertificate.zip
